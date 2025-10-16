@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RareFlow: Physics-Aware Flow-Matching for Cross-Sensor SR</title>
+  <meta name="description" content="RareFlow: a physics-aware, dual-conditioned framework for cross-sensor super-resolution of rare Earth features with uncertainty gating." />
+  <meta property="og:title" content="RareFlow: Physics-Aware Flow-Matching for Cross-Sensor SR" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="RareFlow balances geometric fidelity and semantic synthesis, enforces radiometric consistency, and reduces hallucinations under OOD shift." />
+  <meta property="og:image" content="assets/teaser.png" />
+  <link rel="icon" href="assets/favicon.svg" />
+  <style>
+    :root{
+      --bg: #0b0c10; --panel:#0f1117; --ink:#e8e8ea; --muted:#b7b9c0;
+      --brand:#8ee3ff; --brand2:#a5f3c7; --accent:#ffd166; --line:#1b1f2a;
+      --radius:18px; --pad:18px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Apple Color Emoji,Segoe UI Emoji}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--max);margin:auto;padding:24px}
+    header.hero{display:grid;gap:18px;align-items:center;padding:36px 0}
+    .badge{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:linear-gradient(180deg,#0f1220,#0b0d18)}
+    h1{font-size:clamp(28px,4vw,48px);line-height:1.15;margin:0}
+    .tag{font-size:18px;color:var(--muted);margin-top:4px}
+    .authors{color:var(--muted)}
+    .pill{display:inline-block;border:1px solid var(--line);padding:8px 12px;border-radius:999px;margin-right:8px;margin-top:8px}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:12px;border:1px solid var(--line);
+      background:linear-gradient(180deg,#11131e,#0e0f15); color:var(--ink)
+    }
+    .btn.primary{border-color:transparent;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b0c10;font-weight:600}
+    .grid{display:grid;gap:18px}
+    @media(min-width:960px){ .grid.cols-2{grid-template-columns:1.1fr 0.9fr} .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
+    section.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+    section.panel h2{margin-top:0;margin-bottom:6px;font-size:24px}
+    .muted{color:var(--muted)}
+    figure{margin:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0c13}
+    figure img{display:block;width:100%;height:auto}
+    figure figcaption{padding:10px 12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+    .kpis{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+    @media(min-width:780px){ .kpis{grid-template-columns:repeat(4,1fr)} }
+    .kpi{background:#0b0d14;border:1px solid var(--line);border-radius:14px;padding:14px}
+    .kpi .val{font-size:22px;font-weight:700}
+    code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .bib{white-space:pre-wrap;user-select:all;background:#0b0d14;border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px}
+    footer{color:var(--muted);padding:28px 0}
+    .callout{border:1px solid var(--line);background:linear-gradient(180deg,#101424,#0e111a);border-radius:16px;padding:16px}
+    .small{font-size:14px}
+    .chip{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;background:#0b0d14;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px}
+    /* Light theme variables */
+    html[data-theme="light"]{
+      --bg:#ffffff; --panel:#f8fafc; --ink:#0b0c10; --muted:#64748b;
+      --brand:#8ee3ff; --brand2:#a5f3c7; --accent:#ffd166; --line:#e5e7eb;
+    }
+
+    /* Smooth theme transition */
+    html, body { transition: background-color .25s ease, color .25s ease; }
+
+    /* Component tweaks so they look nice in light mode */
+    html[data-theme="light"] .badge{
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+    }
+    html[data-theme="light"] .btn{
+      background:linear-gradient(180deg,#ffffff,#f3f4f6); color:var(--ink);
+    }
+    html[data-theme="light"] figure{ background:#f1f5f9; }
+    html[data-theme="light"] .kpi,
+    html[data-theme="light"] .chip{ background:#ffffff; }
+    html[data-theme="light"] .callout{
+      background:linear-gradient(180deg,#ffffff,#f6f7fb);
+    }
+
+    /* Floating theme toggle */
+    .theme-toggle{
+      position:fixed; right:18px; bottom:18px; z-index:1000;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      background:var(--panel); color:var(--ink);
+      border:1px solid var(--line);
+      box-shadow:0 6px 24px rgba(0,0,0,.18);
+      cursor:pointer; user-select:none;
+    }
+    .theme-toggle .icon{ font-size:16px; line-height:1; }
+    .theme-toggle .label{ font-size:14px; color:var(--muted); }
+    .theme-toggle:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <span class="badge">Under review • Cross-sensor Super-Resolution</span>
+      <h1>RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features</h1>
+      <div class="tag">Balancing geometric fidelity and semantic synthesis under severe OOD shift.</div>
+      <div class="authors">Forouzan Fallah · Wenwen Li · Chia-Yu Hsu · Hyunho Lee · Yezhou Yang — Arizona State University</div>
+      <div class="btns">
+        <a class="btn primary" href="#" aria-label="Open Paper PDF">📄 Paper (PDF)</a>
+        <a class="btn" href="#" aria-label="Open Code Repository">👩‍💻 Code</a>
+        <a class="btn" href="#bibtex" aria-label="Jump to BibTeX">🔖 BibTeX</a>
+      </div>
+    </header>
+
+    <section class="panel grid cols-2" id="abstract">
+      <div>
+        <h2>Abstract</h2>
+        <p>Super-resolution (SR) in remote sensing can look plausible yet be physically inaccurate, especially for rare geomorphic features and across sensors. <strong>RareFlow</strong> introduces a <em>dual-conditioning</em> architecture—a gated ControlNet to preserve fine-grained geometry from the LR input, plus <em>textual prompts</em> for semantic guidance—trained with a <em>physics-aware loss</em> that enforces spectral & radiometric consistency. The framework also estimates uncertainty via <em>MC-dropout</em>, exposing unfamiliar inputs and mitigating hallucination. On a curated multi-sensor benchmark highlighting retrogressive thaw slumps (RTS), RareFlow attains strong perceptual gains (e.g., a ~38% lower FID than the next best) while maintaining fidelity, and experts often judged outputs on par with HR ground truth.</p>
+        <div class="pill">Sentinel-2 → Maxar (10 m → 2 m)</div>
+        <div class="pill">Physics-aware loss</div>
+        <div class="pill">Uncertainty-gated ControlNet</div>
+      </div>
+      <figure aria-label="Teaser image">
+        <img src="assets/teaser.png" alt="Teaser: LR input, RareFlow result, HR reference comparison"/>
+        <figcaption>Teaser comparison (see Figure 4, p.7 for a full strip).</figcaption>
+      </figure>
+    </section>
+
+    <section class="panel" id="contribs">
+      <h2>Key Contributions</h2>
+      <ul>
+        <li><strong>Dynamic control of priors:</strong> Gated ControlNet + text prompts, balancing geometry vs. semantics to reduce hallucinations under OOD shift.</li>
+        <li><strong>Physics-aware objective:</strong> spectral magnitude alignment + blurred-CIELAB color consistency + LPIPS to preserve radiometry and discourage spurious detail.</li>
+        <li><strong>Unified SR + harmonization:</strong> performs super-resolution and cross-sensor radiometric style transfer jointly.</li>
+        <li><strong>SOTA under low data:</strong> ~800 labeled RTS images; improved perceptual metrics and expert validation.</li>
+      </ul>
+    </section>
+
+    <section class="panel grid cols-2" id="method">
+      <div>
+        <h2>Method Overview</h2>
+        <p><strong>Dual-Conditioned Flow-Matching in Latent Space.</strong> A frozen VAE + diffusion transformer (SD3 MM-DiT) is steered by a trainable ControlNet that consumes LR latents and emits residual hints per block. Per-block scalar gates α<sub>l</sub>(t, u) depend on diffusion time and <em>uncertainty</em> u (from MC-dropout), scaling control strength during sampling.</p>
+        <p><strong>Physics-Aware Loss.</strong> Base flow-matching loss + (i) <em>FFT magnitude</em> alignment (mid/high frequencies), (ii) <em>blurred-CIELAB</em> mean/std alignment for radiometry, and (iii) <em>LPIPS</em> for perceptual agreement.</p>
+        <div class="callout small">Takeaway: Keep geometry anchored to LR evidence; add semantics when confident; police spectra & color so “pretty” doesn’t trump “physical.”</div>
+      </div>
+      <figure>
+        <img src="assets/fig2_training-architecture.png" alt="Training architecture with ControlNet path and α-gates"/>
+        <figcaption>Figure 2 (p.4): Control path produces residual hints and per-block gates injected into a frozen backbone.</figcaption>
+      </figure>
+    </section>
+
+    <section class="panel" id="results">
+      <h2>Results Highlights</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="val">116.16</div><div class="muted">FID (↓) — best; 38% lower vs AdcSR 187.18 (Table 1, p.7).</div></div>
+        <div class="kpi"><div class="val">0.59</div><div class="muted">SSIM (↑) — best on paired LR–HR (Table 1, p.7).</div></div>
+        <div class="kpi"><div class="val">0.83</div><div class="muted">FSIM (↑) — best (Table 1, p.7).</div></div>
+        <div class="kpi"><div class="val">↓ LPIPS/DISTS</div><div class="muted">Both lowest on paired setting (Table 1, p.7).</div></div>
+      </div>
+      <figure style="margin-top:14px">
+        <img src="assets/fig4_lr-hr-comparison.png" alt="Qualitative comparison strip across methods"/>
+        <figcaption>Figure 4 (p.7): Cross-sensor SR + style transfer—RareFlow reconstructs geological detail and matches Maxar style; baselines retain Sentinel-2 style.</figcaption>
+      </figure>
+      <p class="muted small">HR→LR control study (Table 2, p.8): RareFlow improves LPIPS (−27.8%), DISTS (−21.7%), FID (−41.7%), NIQE (−31.0%) vs fidelity-oriented SeeSR while staying close in PSNR/SSIM.</p>
+    </section>
+
+    <section class="panel grid cols-2" id="dataset">
+      <div>
+        <h2>Dataset & Challenges</h2>
+        <ul>
+          <li><strong>Cross-sensor & cross-temporal:</strong> Sentinel-2 (10 m, LR) → Maxar (2 m, HR); misregistration and seasonal changes.</li>
+          <li><strong>Small inputs & 12-bit range:</strong> normalization matters (percentile vs fixed-range).</li>
+          <li><strong>Low-data regime:</strong> ≈800 labeled RTS images across Arctic regions.</li>
+        </ul>
+      </div>
+      <figure>
+        <img src="assets/fig3_data-challenges.png" alt="Data challenges: color normalization, spatial and temporal misalignment"/>
+        <figcaption>Figure 3 (p.6): Radiometric shifts, spatial offsets, and snow cover differences between acquisitions.</figcaption>
+      </figure>
+    </section>
+
+    <section class="panel" id="experts">
+      <h2>Expert Evaluation</h2>
+      <p>Geomorphology experts confirmed clear improvements over LR inputs; in many cases, super-resolved outputs were judged <em>perceptually on par</em> with 2 m Maxar ground truth for RTS features.</p>
+    </section>
+
+    <section class="panel" id="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>What keeps RareFlow from hallucinating?</summary>
+        <div class="small">Uncertainty-gated control reduces prior “creativity” when evidence is weak; physics-aware losses constrain spectra & color.</div>
+      </details>
+      <details>
+        <summary>Does it handle style differences between sensors?</summary>
+        <div class="small">Yes—SR is coupled with explicit cross-sensor style transfer toward the target instrument’s radiometry and textures.</div>
+      </details>
+      <details>
+    <summary>How should I write text prompts?</summary>
+    <div class="small">
+      Keep prompts <em>descriptive, not prescriptive</em>. Mention scene type, materials, and season (e.g., “periglacial terrain, exposed soil, early summer, minimal snow”). Avoid forcing tiny features (“sharp cracks everywhere”) which can induce artifacts. If the model seems too “creative”, shorten the prompt or lower guidance strength.
+    </div>
+  </details>
+    <details>
+    <summary>What controls the balance between geometry and synthesis?</summary>
+    <div class="small">
+      Two knobs: (1) <em>control strength / gating schedule</em>—higher gates anchor structure to the LR evidence; (2) <em>text guidance scale</em>—higher guidance adds semantics and style. For safety-first reconstructions, increase gates and reduce guidance.
+    </div>
+  </details>
+    <details>
+    <summary>What are the common failure modes?</summary>
+    <div class="small">
+      OOD textures (e.g., heavy snow, cloud, unusual materials), large temporal changes, and overly prescriptive prompts can cause oversharpening or incorrect semantics. Inspect uncertainty maps; if they spike, fall back to stronger control and lighter guidance.
+    </div>
+  </details>
+    <details>
+    <summary>Can I adapt this beyond satellite imagery?</summary>
+    <div class="small">
+      Yes—in principle to other cross-sensor SR tasks. For regulated domains (medical, surveillance), ensure domain approval, anonymization, and strict validation before deployment.
+    </div>
+  </details>
+    <details>
+    <summary>Any ethical or licensing considerations?</summary>
+    <div class="small">
+      Respect the licensing of commercial HR imagery and avoid using SR outputs to make unverifiable claims about fine-scale features. Clearly label synthesized content and provide LR inputs alongside results for context.
+    </div>
+  </details>
+    </section>
+
+    <section class="panel" id="bibtex">
+      <h2>Cite</h2>
+      <div class="bib">@inproceedings{RareFlow2026,
+  title     = {RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features},
+  author    = {Fallah, Forouzan and Li, Wenwen and Hsu, Chia-Yu and Lee, Hyunho and Yang, Yezhou},
+  booktitle = {Under Review},
+  year      = {2026},
+  note      = {Project page: rareflow.github.io}
+}</div>
+    </section>
+
+    <footer class="wrap">
+      <div class="small">© <span id="y"></span> RareFlow Authors.</div>
+    </footer>
+  </div>
+
+<script>
+  (function () {
+    // 1) Keep the footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // 2) Theme logic
+    const THEME_KEY = 'rareflow-theme';
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const icon = btn.querySelector('.icon');
+    const label = btn.querySelector('.label');
+
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
+    const stored = localStorage.getItem(THEME_KEY);
+    let theme = stored || (prefersLight.matches ? 'light' : 'dark');
+
+    function apply() {
+      if (theme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        icon.textContent = '☀️';
+        label.textContent = 'Light';
+        btn.setAttribute('aria-label', 'Switch to dark mode');
+        btn.setAttribute('aria-pressed', 'false');
+      } else {
+        root.removeAttribute('data-theme'); // default = dark
+        icon.textContent = '🌙';
+        label.textContent = 'Dark';
+        btn.setAttribute('aria-label', 'Switch to light mode');
+        btn.setAttribute('aria-pressed', 'true');
+      }
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    apply();
+
+    btn.addEventListener('click', function () {
+      theme = (theme === 'light') ? 'dark' : 'light';
+      apply();
+    });
+
+    // If user hasn't chosen a theme, follow system changes
+    prefersLight.addEventListener('change', (e) => {
+      if (!localStorage.getItem(THEME_KEY)) {
+        theme = e.matches ? 'light' : 'dark';
+        apply();
+      }
+    });
+  })();
+</script>
+
+<button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
+  <span class="icon" aria-hidden="true">🌙</span>
+  <span class="label">Dark</span>
+</button>
+</body>
+</html>
