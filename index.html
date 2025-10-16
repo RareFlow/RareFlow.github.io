@@ -52,6 +52,7 @@
     .callout{border:1px solid var(--line);background:linear-gradient(180deg,#101424,#0e111a);border-radius:16px;padding:16px}
     .small{font-size:14px}
     .chip{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;background:#0b0d14;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px}
+
     /* Light theme variables */
     html[data-theme="light"]{
       --bg:#ffffff; --panel:#f8fafc; --ink:#0b0c10; --muted:#64748b;
@@ -62,18 +63,12 @@
     html, body { transition: background-color .25s ease, color .25s ease; }
 
     /* Component tweaks so they look nice in light mode */
-    html[data-theme="light"] .badge{
-      background:linear-gradient(180deg,#ffffff,#f8fafc);
-    }
-    html[data-theme="light"] .btn{
-      background:linear-gradient(180deg,#ffffff,#f3f4f6); color:var(--ink);
-    }
+    html[data-theme="light"] .badge{ background:linear-gradient(180deg,#ffffff,#f8fafc); }
+    html[data-theme="light"] .btn{ background:linear-gradient(180deg,#ffffff,#f3f4f6); color:var(--ink); }
     html[data-theme="light"] figure{ background:#f1f5f9; }
     html[data-theme="light"] .kpi,
     html[data-theme="light"] .chip{ background:#ffffff; }
-    html[data-theme="light"] .callout{
-      background:linear-gradient(180deg,#ffffff,#f6f7fb);
-    }
+    html[data-theme="light"] .callout{ background:linear-gradient(180deg,#ffffff,#f6f7fb); }
 
     /* Floating theme toggle */
     .theme-toggle{
@@ -89,6 +84,27 @@
     .theme-toggle .label{ font-size:14px; color:var(--muted); }
     .theme-toggle:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
 
+    /* ─────────────────────────────────────────────────────────────
+       BEFORE/AFTER TEASER COMPARE SLIDER
+       Drop in two images: LR (before) and SR (after). Accessible + no libs.
+       ───────────────────────────────────────────────────────────── */
+    .compare{ position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:#0a0c13; }
+    .compare img{ display:block; width:100%; height:auto; user-select:none; pointer-events:none; }
+    .compare .after{ position:absolute; inset:0; clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0); }
+    .compare input[type="range"]{
+      position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:ew-resize; margin:0; z-index:3;
+    }
+    .compare .handle{ position:absolute; top:0; bottom:0; left:calc(var(--pos, 50%)); width:2px; background:var(--accent); transform:translateX(-1px); z-index:2; pointer-events:none; }
+    .compare .handle::after{
+      content:""; position:absolute; left:50%; top:50%; width:22px; height:22px; border-radius:50%; transform:translate(-50%,-50%);
+      background:var(--panel); border:2px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.35);
+    }
+    .compare .labels{ position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; z-index:1; }
+    .compare .badge{ backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85)); border-color:rgba(255,255,255,.12); }
+    html[data-theme="light"] .compare .badge{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85)); }
+
+    /* Method figure can be wide; ensure it doesn't shrink in a 2-col grid */
+    .method-figure img{ width:100%; height:auto; display:block; }
   </style>
 </head>
 <body>
@@ -113,9 +129,19 @@
         <div class="pill">Physics-aware loss</div>
         <div class="pill">Uncertainty-gated ControlNet</div>
       </div>
-      <figure aria-label="Teaser image">
-        <img src="assets/teaser.png" alt="Teaser: LR input, RareFlow result, HR reference comparison"/>
-        <figcaption>Teaser comparison (see Figure 4, p.7 for a full strip).</figcaption>
+      <figure aria-label="Teaser before/after compare">
+        <!-- Replace the two image sources with your LR and SR teaser crops -->
+        <div class="compare" id="teaserCompare" style="--pos:50%">
+          <img src="assets/teaser_lr.png" alt="LR input (before)" />
+          <img class="after" src="assets/teaser_sr.png" alt="RareFlow SR output (after)" />
+          <div class="labels">
+            <span class="badge" aria-hidden="true">LR input</span>
+            <span class="badge" aria-hidden="true">SR (RareFlow)</span>
+          </div>
+          <input type="range" min="0" max="100" value="50" aria-label="Reveal SR result" />
+          <div class="handle" aria-hidden="true"></div>
+        </div>
+        <figcaption>Drag the bar to compare LR vs RareFlow SR. (For 3-way: swap sources or duplicate slider with HR reference.)</figcaption>
       </figure>
     </section>
 
@@ -129,15 +155,17 @@
       </ul>
     </section>
 
-    <section class="panel grid cols-2" id="method">
-      <div>
-        <h2>Method Overview</h2>
-        <p><strong>Dual-Conditioned Flow-Matching in Latent Space.</strong> A frozen VAE + diffusion transformer (SD3 MM-DiT) is steered by a trainable ControlNet that consumes LR latents and emits residual hints per block. Per-block scalar gates α<sub>l</sub>(t, u) depend on diffusion time and <em>uncertainty</em> u (from MC-dropout), scaling control strength during sampling.</p>
-        <p><strong>Physics-Aware Loss.</strong> Base flow-matching loss + (i) <em>FFT magnitude</em> alignment (mid/high frequencies), (ii) <em>blurred-CIELAB</em> mean/std alignment for radiometry, and (iii) <em>LPIPS</em> for perceptual agreement.</p>
-        <div class="callout small">Takeaway: Keep geometry anchored to LR evidence; add semantics when confident; police spectra & color so “pretty” doesn’t trump “physical.”</div>
-      </div>
-      <figure>
-        <img src="assets/method.png"/>
+    <!-- METHOD: split text and diagram so the (rectangular) image gets full width -->
+    <section class="panel" id="method">
+      <h2>Method Overview</h2>
+      <p><strong>Dual-Conditioned Flow-Matching in Latent Space.</strong> A frozen VAE + diffusion transformer (SD3 MM-DiT) is steered by a trainable ControlNet that consumes LR latents and emits residual hints per block. Per-block scalar gates α<sub>l</sub>(t, u) depend on diffusion time and <em>uncertainty</em> u (from MC-dropout), scaling control strength during sampling.</p>
+      <p><strong>Physics-Aware Loss.</strong> Base flow-matching loss + (i) <em>FFT magnitude</em> alignment (mid/high frequencies), (ii) <em>blurred-CIELAB</em> mean/std alignment for radiometry, and (iii) <em>LPIPS</em> for perceptual agreement.</p>
+      <div class="callout small">Takeaway: Keep geometry anchored to LR evidence; add semantics when confident; police spectra & color so “pretty” doesn’t trump “physical.”</div>
+    </section>
+
+    <section class="panel" id="method-figure">
+      <figure class="method-figure">
+        <img src="assets/method.png" alt="Control path produces residual hints and per-block gates injected into a frozen backbone."/>
         <figcaption>Figure 2 (p.4): Control path produces residual hints and per-block gates injected into a frozen backbone.</figcaption>
       </figure>
     </section>
@@ -188,35 +216,35 @@
         <div class="small">Yes—SR is coupled with explicit cross-sensor style transfer toward the target instrument’s radiometry and textures.</div>
       </details>
       <details>
-    <summary>How should I write text prompts?</summary>
-    <div class="small">
-      Keep prompts <em>descriptive, not prescriptive</em>. Mention scene type, materials, and season (e.g., “periglacial terrain, exposed soil, early summer, minimal snow”). Avoid forcing tiny features (“sharp cracks everywhere”) which can induce artifacts. If the model seems too “creative”, shorten the prompt or lower guidance strength.
-    </div>
-  </details>
-    <details>
-    <summary>What controls the balance between geometry and synthesis?</summary>
-    <div class="small">
-      Two knobs: (1) <em>control strength / gating schedule</em>—higher gates anchor structure to the LR evidence; (2) <em>text guidance scale</em>—higher guidance adds semantics and style. For safety-first reconstructions, increase gates and reduce guidance.
-    </div>
-  </details>
-    <details>
-    <summary>What are the common failure modes?</summary>
-    <div class="small">
-      OOD textures (e.g., heavy snow, cloud, unusual materials), large temporal changes, and overly prescriptive prompts can cause oversharpening or incorrect semantics. Inspect uncertainty maps; if they spike, fall back to stronger control and lighter guidance.
-    </div>
-  </details>
-    <details>
-    <summary>Can I adapt this beyond satellite imagery?</summary>
-    <div class="small">
-      Yes—in principle to other cross-sensor SR tasks. For regulated domains (medical, surveillance), ensure domain approval, anonymization, and strict validation before deployment.
-    </div>
-  </details>
-    <details>
-    <summary>Any ethical or licensing considerations?</summary>
-    <div class="small">
-      Respect the licensing of commercial HR imagery and avoid using SR outputs to make unverifiable claims about fine-scale features. Clearly label synthesized content and provide LR inputs alongside results for context.
-    </div>
-  </details>
+        <summary>How should I write text prompts?</summary>
+        <div class="small">
+          Keep prompts <em>descriptive, not prescriptive</em>. Mention scene type, materials, and season (e.g., “periglacial terrain, exposed soil, early summer, minimal snow”). Avoid forcing tiny features (“sharp cracks everywhere”) which can induce artifacts. If the model seems too “creative”, shorten the prompt or lower guidance strength.
+        </div>
+      </details>
+      <details>
+        <summary>What controls the balance between geometry and synthesis?</summary>
+        <div class="small">
+          Two knobs: (1) <em>control strength / gating schedule</em>—higher gates anchor structure to the LR evidence; (2) <em>text guidance scale</em>—higher guidance adds semantics and style. For safety-first reconstructions, increase gates and reduce guidance.
+        </div>
+      </details>
+      <details>
+        <summary>What are the common failure modes?</summary>
+        <div class="small">
+          OOD textures (e.g., heavy snow, cloud, unusual materials), large temporal changes, and overly prescriptive prompts can cause oversharpening or incorrect semantics. Inspect uncertainty maps; if they spike, fall back to stronger control and lighter guidance.
+        </div>
+      </details>
+      <details>
+        <summary>Can I adapt this beyond satellite imagery?</summary>
+        <div class="small">
+          Yes—in principle to other cross-sensor SR tasks. For regulated domains (medical, surveillance), ensure domain approval, anonymization, and strict validation before deployment.
+        </div>
+      </details>
+      <details>
+        <summary>Any ethical or licensing considerations?</summary>
+        <div class="small">
+          Respect the licensing of commercial HR imagery and avoid using SR outputs to make unverifiable claims about fine-scale features. Clearly label synthesized content and provide LR inputs alongside results for context.
+        </div>
+      </details>
     </section>
 
     <section class="panel" id="bibtex">
@@ -235,77 +263,96 @@
     </footer>
   </div>
 
-<button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
-  <span class="icon" aria-hidden="true">🌙</span>
-  <span class="label">Dark</span>
-</button>
+  <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
+    <span class="icon" aria-hidden="true">🌙</span>
+    <span class="label">Dark</span>
+  </button>
 
-<script>
-(function () {
-  const THEME_KEY = 'rareflow-theme';
-  const root = document.documentElement;
-  const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
+  <script>
+  (function () {
+    const THEME_KEY = 'rareflow-theme';
+    const root = document.documentElement;
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
 
-  function init() {
-    // Footer year
-    const yEl = document.getElementById('y');
-    if (yEl) yEl.textContent = new Date().getFullYear();
+    function init() {
+      // Footer year
+      const yEl = document.getElementById('y');
+      if (yEl) yEl.textContent = new Date().getFullYear();
 
-    const btn = document.getElementById('themeToggle');
-    if (!btn) return; // Button not present; nothing to do.
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return; // Button not present; nothing to do.
 
-    const icon = btn.querySelector('.icon');
-    const label = btn.querySelector('.label');
+      const icon = btn.querySelector('.icon');
+      const label = btn.querySelector('.label');
 
-    const stored = localStorage.getItem(THEME_KEY);
-    let theme = stored || (prefersLight.matches ? 'light' : 'dark');
+      const stored = localStorage.getItem(THEME_KEY);
+      let theme = stored || (prefersLight.matches ? 'light' : 'dark');
 
-    function apply() {
-      if (theme === 'light') {
-        root.setAttribute('data-theme', 'light');
-        if (icon) icon.textContent = '☀️';
-        if (label) label.textContent = 'Light';
-        btn.setAttribute('aria-label', 'Switch to dark mode');
-        btn.setAttribute('aria-pressed', 'false');
-      } else {
-        root.removeAttribute('data-theme'); // default = dark
-        if (icon) icon.textContent = '🌙';
-        if (label) label.textContent = 'Dark';
-        btn.setAttribute('aria-label', 'Switch to light mode');
-        btn.setAttribute('aria-pressed', 'true');
+      function apply() {
+        if (theme === 'light') {
+          root.setAttribute('data-theme', 'light');
+          if (icon) icon.textContent = '☀️';
+          if (label) label.textContent = 'Light';
+          btn.setAttribute('aria-label', 'Switch to dark mode');
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          root.removeAttribute('data-theme'); // default = dark
+          if (icon) icon.textContent = '🌙';
+          if (label) label.textContent = 'Dark';
+          btn.setAttribute('aria-label', 'Switch to light mode');
+          btn.setAttribute('aria-pressed', 'true');
+        }
       }
-    }
 
-    apply();
-
-    // Persist ONLY after the user explicitly toggles.
-    btn.addEventListener('click', function () {
-      theme = (theme === 'light') ? 'dark' : 'light';
-      localStorage.setItem(THEME_KEY, theme);
       apply();
-    });
 
-    // Follow system changes only if user hasn't chosen a theme yet.
-    if (!stored) {
-      const mqHandler = (e) => { theme = e.matches ? 'light' : 'dark'; apply(); };
-      if (prefersLight.addEventListener) {
-        prefersLight.addEventListener('change', mqHandler);
-      } else if (prefersLight.addListener) { // legacy Safari
-        prefersLight.addListener(mqHandler);
+      // Persist ONLY after the user explicitly toggles.
+      btn.addEventListener('click', function () {
+        theme = (theme === 'light') ? 'dark' : 'light';
+        localStorage.setItem(THEME_KEY, theme);
+        apply();
+      });
+
+      // Follow system changes only if user hasn't chosen a theme yet.
+      if (!stored) {
+        const mqHandler = (e) => { theme = e.matches ? 'light' : 'dark'; apply(); };
+        if (prefersLight.addEventListener) {
+          prefersLight.addEventListener('change', mqHandler);
+        } else if (prefersLight.addListener) { // legacy Safari
+          prefersLight.addListener(mqHandler);
+        }
+      }
+
+      // ── Initialize teaser compare slider ──────────────────────
+      const compare = document.getElementById('teaserCompare');
+      if (compare) {
+        const range = compare.querySelector('input[type="range"]');
+        const handle = compare.querySelector('.handle');
+        const setPos = (p) => {
+          const pct = Math.min(100, Math.max(0, p));
+          compare.style.setProperty('--pos', pct + '%');
+          // No need to move handle here; it's bound to --pos in CSS.
+          range.setAttribute('aria-valuenow', pct);
+        };
+        // Sync on input
+        range.addEventListener('input', (e) => setPos(e.target.value));
+        // Keyboard accessibility (left/right arrows already work on range)
+        range.addEventListener('keydown', (e) => {
+          if (e.key === 'Home') { setPos(0); }
+          if (e.key === 'End')  { setPos(100); }
+        });
+        // Start in the middle
+        setPos(range.value || 50);
       }
     }
-  }
 
-  // Ensure the DOM (including the button) exists first.
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
-  }
-})();
-</script>
-
-
-
+    // Ensure the DOM (including the button) exists first.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+  })();
+  </script>
 </body>
 </html>
