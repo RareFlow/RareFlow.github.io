@@ -185,7 +185,6 @@
       <h2>Method Overview</h2>
       <p><strong>Dual-Conditioned Flow-Matching in Latent Space.</strong> A frozen VAE + diffusion transformer (SD3 MM-DiT) is steered by a trainable ControlNet that consumes LR latents and emits residual hints per block. Per-block scalar gates α<sub>l</sub>(t, u) depend on diffusion time and <em>uncertainty</em> u (from MC-dropout), scaling control strength during sampling.</p>
       <p><strong>Physics-Aware Loss.</strong> Base flow-matching loss + (i) <em>FFT magnitude</em> alignment (mid/high frequencies), (ii) <em>blurred-CIELAB</em> mean/std alignment for radiometry, and (iii) <em>LPIPS</em> for perceptual agreement.</p>
-      <div class="callout small">Takeaway: Keep geometry anchored to LR evidence; add semantics when confident; police spectra & color so “pretty” doesn’t trump “physical.”</div>
     </section>
 
     <section class="panel" id="method-figure">
@@ -207,16 +206,15 @@
         <img src="assets/main_results.png" alt="Qualitative comparison strip across methods"/>
         <figcaption>Figure 4 (p.7): Cross-sensor SR + style transfer—RareFlow reconstructs geological detail and matches Maxar style; baselines retain Sentinel-2 style.</figcaption>
       </figure>
-      <p class="muted small">HR→LR control study (Table 2, p.8): RareFlow improves LPIPS (−27.8%), DISTS (−21.7%), FID (−41.7%), NIQE (−31.0%) vs fidelity-oriented SeeSR while staying close in PSNR/SSIM.</p>
     </section>
 
     <section class="panel grid cols-2" id="dataset">
       <div>
         <h2>Dataset & Challenges</h2>
         <ul>
-          <li><strong>Cross-sensor & cross-temporal:</strong> Sentinel-2 (10 m, LR) → Maxar (2 m, HR); misregistration and seasonal changes.</li>
-          <li><strong>Small inputs & 12-bit range:</strong> normalization matters (percentile vs fixed-range).</li>
-          <li><strong>Low-data regime:</strong> ≈800 labeled RTS images across Arctic regions.</li>
+<p>
+  These challenges include: <strong>(1) Spatiotemporal misalignment</strong> between LR and HR images, acquired at different times, causes sub-pixel shifts, dramatic variations in illumination, and stark land cover changes. Furthermore, the dataset is characterized by <strong>(2) Small image dimensions</strong>, with inputs as small as 30×40 pixels, which prevent direct comparison to models evaluated on larger benchmark images. <strong>(3) A non-standard 12-bit data range</strong> that departs from the typical 8-bit format and makes model performance highly sensitive to the chosen normalization method as it materially alters input data distribution. <strong>(4) A limited training corpus of ≈ 800 images</strong>, which necessitates a data-efficient approach unsuitable for training large models from scratch. Further details are provided in <a href="#app:data">Appendix</a>.
+</p>
         </ul>
       </div>
       <figure>
