@@ -105,6 +105,13 @@
 
     /* Method figure can be wide; ensure it doesn't shrink in a 2-col grid */
     .method-figure img{ width:100%; height:auto; display:block; }
+      /* Quad teaser grid (4 separate images) */
+    .quad{ display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
+    .tile{ position:relative; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#0a0c13; }
+    .tile img{ display:block; width:100%; height:auto; }
+    .tile .badge{ position:absolute; top:10px; left:10px; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85)); border-color:rgba(255,255,255,.12); }
+    html[data-theme="light"] .tile .badge{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85)); }
+
   </style>
 </head>
 <body>
@@ -129,29 +136,27 @@
         <div class="pill">Physics-aware loss</div>
         <div class="pill">Uncertainty-gated ControlNet</div>
       </div>
-      <figure aria-label="Teaser before/after compares">
-        <!-- Two bars: LR↔HR and HR↔SR (generated). HR is shared. -->
-        <div class="compare" id="teaserLRHR" style="--pos:50%">
-          <img src="assets/teaser_lr.png" alt="LR input (before)" />
-          <img class="after" src="assets/teaser_hr.png" alt="HR reference (after)" />
-          <div class="labels">
+      <figure aria-label="Teaser quad">
+        <!-- Four separate images: (1) LR, (2) SR; (3) HR↓, (4) SR -->
+        <div class="quad">
+          <div class="tile">
+            <img src="assets/teaser_lr.png" alt="LR input" />
             <span class="badge" aria-hidden="true">LR input</span>
-            <span class="badge" aria-hidden="true">HR reference</span>
           </div>
-          <input type="range" min="0" max="100" value="50" aria-label="Reveal HR reference" />
-          <div class="handle" aria-hidden="true"></div>
-        </div>
-        <div class="compare" id="teaserHRSR" style="--pos:50%; margin-top:12px">
-          <img src="assets/teaser_hr.png" alt="HR reference (before)" />
-          <img class="after" src="assets/teaser_sr.png" alt="SR output (after)" />
-          <div class="labels">
-            <span class="badge" aria-hidden="true">HR reference</span>
+          <div class="tile">
+            <img src="assets/teaser_sr.png" alt="SR (RareFlow)" />
             <span class="badge" aria-hidden="true">SR (RareFlow)</span>
           </div>
-          <input type="range" min="0" max="100" value="50" aria-label="Reveal SR result" />
-          <div class="handle" aria-hidden="true"></div>
+          <div class="tile">
+            <img src="assets/teaser_hr_down.png" alt="HR downsampled to LR scale" />
+            <span class="badge" aria-hidden="true">HR ↓ (to LR)</span>
+          </div>
+          <div class="tile">
+            <img src="assets/teaser_sr.png" alt="SR (RareFlow)" />
+            <span class="badge" aria-hidden="true">SR (RareFlow)</span>
+          </div>
         </div>
-        <figcaption>Top: LR vs HR (ground truth). Bottom: HR vs SR (generated). Drag the bars to compare.</figcaption>
+        <figcaption>Four-way teaser: LR vs SR; HR↓ (to LR scale) vs SR. Replace image paths to match your assets.</figcaption>
       </figure>
     </section>
 
