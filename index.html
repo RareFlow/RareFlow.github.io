@@ -129,19 +129,29 @@
         <div class="pill">Physics-aware loss</div>
         <div class="pill">Uncertainty-gated ControlNet</div>
       </div>
-      <figure aria-label="Teaser before/after compare">
-        <!-- Replace the two image sources with your LR and SR teaser crops -->
-        <div class="compare" id="teaserCompare" style="--pos:50%">
+      <figure aria-label="Teaser before/after compares">
+        <!-- Two bars: LR↔HR and HR↔SR (generated). HR is shared. -->
+        <div class="compare" id="teaserLRHR" style="--pos:50%">
           <img src="assets/teaser_lr.png" alt="LR input (before)" />
-          <img class="after" src="assets/teaser_sr.png" alt="RareFlow SR output (after)" />
+          <img class="after" src="assets/teaser_hr.png" alt="HR reference (after)" />
           <div class="labels">
             <span class="badge" aria-hidden="true">LR input</span>
+            <span class="badge" aria-hidden="true">HR reference</span>
+          </div>
+          <input type="range" min="0" max="100" value="50" aria-label="Reveal HR reference" />
+          <div class="handle" aria-hidden="true"></div>
+        </div>
+        <div class="compare" id="teaserHRSR" style="--pos:50%; margin-top:12px">
+          <img src="assets/teaser_hr.png" alt="HR reference (before)" />
+          <img class="after" src="assets/teaser_sr.png" alt="SR output (after)" />
+          <div class="labels">
+            <span class="badge" aria-hidden="true">HR reference</span>
             <span class="badge" aria-hidden="true">SR (RareFlow)</span>
           </div>
           <input type="range" min="0" max="100" value="50" aria-label="Reveal SR result" />
           <div class="handle" aria-hidden="true"></div>
         </div>
-        <figcaption>Drag the bar to compare LR vs RareFlow SR. (For 3-way: swap sources or duplicate slider with HR reference.)</figcaption>
+        <figcaption>Top: LR vs HR (ground truth). Bottom: HR vs SR (generated). Drag the bars to compare.</figcaption>
       </figure>
     </section>
 
@@ -323,27 +333,21 @@
         }
       }
 
-      // ── Initialize teaser compare slider ──────────────────────
-      const compare = document.getElementById('teaserCompare');
-      if (compare) {
+      // ── Initialize teaser compare sliders (supports multiple) ─────────────
+      document.querySelectorAll('.compare').forEach((compare) => {
         const range = compare.querySelector('input[type="range"]');
-        const handle = compare.querySelector('.handle');
         const setPos = (p) => {
-          const pct = Math.min(100, Math.max(0, p));
+          const pct = Math.min(100, Math.max(0, +p));
           compare.style.setProperty('--pos', pct + '%');
-          // No need to move handle here; it's bound to --pos in CSS.
           range.setAttribute('aria-valuenow', pct);
         };
-        // Sync on input
         range.addEventListener('input', (e) => setPos(e.target.value));
-        // Keyboard accessibility (left/right arrows already work on range)
         range.addEventListener('keydown', (e) => {
           if (e.key === 'Home') { setPos(0); }
           if (e.key === 'End')  { setPos(100); }
         });
-        // Start in the middle
         setPos(range.value || 50);
-      }
+      });
     }
 
     // Ensure the DOM (including the button) exists first.
