@@ -47,7 +47,7 @@
     .kpi{background:#0b0d14;border:1px solid var(--line);border-radius:14px;padding:14px}
     .kpi .val{font-size:22px;font-weight:700}
     code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .bib{white-space:pre-wrap;user-select:all;background:#0b0d14;border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px}
+    .bib{white-space:pre-wrap;user-select:all; background:var(--panel);border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
     footer{color:var(--muted);padding:28px 0}
     .callout{border:1px solid var(--line);background:linear-gradient(180deg,#101424,#0e111a);border-radius:16px;padding:16px}
     .small{font-size:14px}
@@ -235,59 +235,77 @@
     </footer>
   </div>
 
-<script>
-  (function () {
-    // 1) Keep the footer year
-    document.getElementById('y').textContent = new Date().getFullYear();
+<button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
+  <span class="icon" aria-hidden="true">🌙</span>
+  <span class="label">Dark</span>
+</button>
 
-    // 2) Theme logic
-    const THEME_KEY = 'rareflow-theme';
-    const root = document.documentElement;
+<script>
+(function () {
+  const THEME_KEY = 'rareflow-theme';
+  const root = document.documentElement;
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
+
+  function init() {
+    // Footer year
+    const yEl = document.getElementById('y');
+    if (yEl) yEl.textContent = new Date().getFullYear();
+
     const btn = document.getElementById('themeToggle');
+    if (!btn) return; // Button not present; nothing to do.
+
     const icon = btn.querySelector('.icon');
     const label = btn.querySelector('.label');
 
-    const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
     const stored = localStorage.getItem(THEME_KEY);
     let theme = stored || (prefersLight.matches ? 'light' : 'dark');
 
     function apply() {
       if (theme === 'light') {
         root.setAttribute('data-theme', 'light');
-        icon.textContent = '☀️';
-        label.textContent = 'Light';
+        if (icon) icon.textContent = '☀️';
+        if (label) label.textContent = 'Light';
         btn.setAttribute('aria-label', 'Switch to dark mode');
         btn.setAttribute('aria-pressed', 'false');
       } else {
         root.removeAttribute('data-theme'); // default = dark
-        icon.textContent = '🌙';
-        label.textContent = 'Dark';
+        if (icon) icon.textContent = '🌙';
+        if (label) label.textContent = 'Dark';
         btn.setAttribute('aria-label', 'Switch to light mode');
         btn.setAttribute('aria-pressed', 'true');
       }
-      localStorage.setItem(THEME_KEY, theme);
     }
 
     apply();
 
+    // Persist ONLY after the user explicitly toggles.
     btn.addEventListener('click', function () {
       theme = (theme === 'light') ? 'dark' : 'light';
+      localStorage.setItem(THEME_KEY, theme);
       apply();
     });
 
-    // If user hasn't chosen a theme, follow system changes
-    prefersLight.addEventListener('change', (e) => {
-      if (!localStorage.getItem(THEME_KEY)) {
-        theme = e.matches ? 'light' : 'dark';
-        apply();
+    // Follow system changes only if user hasn't chosen a theme yet.
+    if (!stored) {
+      const mqHandler = (e) => { theme = e.matches ? 'light' : 'dark'; apply(); };
+      if (prefersLight.addEventListener) {
+        prefersLight.addEventListener('change', mqHandler);
+      } else if (prefersLight.addListener) { // legacy Safari
+        prefersLight.addListener(mqHandler);
       }
-    });
-  })();
+    }
+  }
+
+  // Ensure the DOM (including the button) exists first.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+})();
 </script>
 
-<button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
-  <span class="icon" aria-hidden="true">🌙</span>
-  <span class="label">Dark</span>
-</button>
+
+
 </body>
 </html>
