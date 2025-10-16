@@ -112,6 +112,12 @@
     .tile .badge{ position:absolute; top:10px; left:10px; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85)); border-color:rgba(255,255,255,.12); }
     html[data-theme="light"] .tile .badge{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85)); }
 
+    @media (min-width: 960px){
+  .cols-2-even{ grid-template-columns: repeat(2, 1fr); }
+}
+.span-all{ grid-column: 1 / -1; }
+.abstract-narrow{ max-width: 72ch; margin-inline: auto; }
+
   </style>
 </head>
 <body>
@@ -128,37 +134,41 @@
       </div>
     </header>
 
-    <section class="panel grid cols-2" id="abstract">
-      <div>
-        <h2>Abstract</h2>
-        <p>Super-resolution (SR) in remote sensing can look plausible yet be physically inaccurate, especially for rare geomorphic features and across sensors. <strong>RareFlow</strong> introduces a <em>dual-conditioning</em> architecture—a gated ControlNet to preserve fine-grained geometry from the LR input, plus <em>textual prompts</em> for semantic guidance—trained with a <em>physics-aware loss</em> that enforces spectral & radiometric consistency. The framework also estimates uncertainty via <em>MC-dropout</em>, exposing unfamiliar inputs and mitigating hallucination. On a curated multi-sensor benchmark highlighting retrogressive thaw slumps (RTS), RareFlow attains strong perceptual gains (e.g., a ~38% lower FID than the next best) while maintaining fidelity, and experts often judged outputs on par with HR ground truth.</p>
-        <div class="pill">Sentinel-2 → Maxar (10 m → 2 m)</div>
-        <div class="pill">Physics-aware loss</div>
-        <div class="pill">Uncertainty-gated ControlNet</div>
-      </div>
-      <figure aria-label="Teaser quad">
-        <!-- Four separate images: (1) LR, (2) SR; (3) HR↓, (4) SR -->
-        <div class="quad">
-          <div class="tile">
-            <img src="assets/lr.png" alt="LR input" />
-            <span class="badge" aria-hidden="true">LR input</span>
-          </div>
-          <div class="tile">
-            <img src="assets/sr_lr.png" alt="SR (RareFlow)" />
-            <span class="badge" aria-hidden="true">SR (RareFlow)</span>
-          </div>
-          <div class="tile">
-            <img src="assets/hr_d.png" alt="HR downsampled to LR scale" />
-            <span class="badge" aria-hidden="true">HR ↓ (to LR)</span>
-          </div>
-          <div class="tile">
-            <img src="assets/sr_hr.png" alt="SR (RareFlow)" />
-            <span class="badge" aria-hidden="true">SR (RareFlow)</span>
-          </div>
-        </div>
-        <figcaption>Four-way teaser: LR vs SR; HR↓ (to LR scale) vs SR. Replace image paths to match your assets.</figcaption>
-      </figure>
-    </section>
+   <section class="panel grid cols-2-even" id="teaser">
+  <!-- Row 1, Col 1: LR vs SR(LR) -->
+  <figure class="compare" aria-label="Low-resolution input versus super-resolved (RareFlow)">
+    <img src="assets/lr.png" alt="LR input"/>
+    <img class="after" src="assets/sr_lr.png" alt="SR (RareFlow) from LR input"/>
+    <div class="labels">
+      <span class="badge" aria-hidden="true">LR</span>
+      <span class="badge" aria-hidden="true">SR (RareFlow)</span>
+    </div>
+    <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs LR" />
+    <div class="handle" aria-hidden="true"></div>
+  </figure>
+
+  <!-- Row 1, Col 2: HR↓ vs SR(HR) -->
+  <figure class="compare" aria-label="HR downsampled to LR scale versus super-resolved (RareFlow)">
+    <img src="assets/hr_d.png" alt="HR downsampled to LR scale (HR↓ → LR)"/>
+    <img class="after" src="assets/sr_hr.png" alt="SR (RareFlow) from HR↓ reference"/>
+    <div class="labels">
+      <span class="badge" aria-hidden="true">HR ↓ (to LR)</span>
+      <span class="badge" aria-hidden="true">SR (RareFlow)</span>
+    </div>
+    <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs HR↓" />
+    <div class="handle" aria-hidden="true"></div>
+  </figure>
+
+  <!-- Row 2: Abstract spans both columns -->
+  <div class="span-all abstract-narrow" id="abstract">
+    <h2>Abstract</h2>
+    <p>Super-resolution (SR) in remote sensing can look plausible yet be physically inaccurate, especially for rare geomorphic features and across sensors. <strong>RareFlow</strong> introduces a <em>dual-conditioning</em> architecture—a gated ControlNet to preserve fine-grained geometry from the LR input, plus <em>textual prompts</em> for semantic guidance—trained with a <em>physics-aware loss</em> that enforces spectral & radiometric consistency. The framework also estimates uncertainty via <em>MC-dropout</em>, exposing unfamiliar inputs and mitigating hallucination. On a curated multi-sensor benchmark highlighting retrogressive thaw slumps (RTS), RareFlow attains strong perceptual gains (e.g., a ~38% lower FID than the next best) while maintaining fidelity, and experts often judged outputs on par with HR ground truth.</p>
+    <div class="pill">Sentinel-2 → Maxar (10 m → 2 m)</div>
+    <div class="pill">Physics-aware loss</div>
+    <div class="pill">Uncertainty-gated ControlNet</div>
+  </div>
+</section>
+
 
     <section class="panel" id="contribs">
       <h2>Key Contributions</h2>
