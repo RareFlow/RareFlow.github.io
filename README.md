@@ -1,4 +1,4 @@
-#🛰️ RareFlow: Physics‑Aware Flow‑Matching for Cross‑Sensor Super‑Resolution of Rare‑Earth Features
+# 🛰️ RareFlow: Physics‑Aware Flow‑Matching for Cross‑Sensor Super‑Resolution of Rare‑Earth Features
 
 **Authors:** Forouzan Fallah · Wenwen Li · Chia‑Yu Hsu · Hyunho Lee · Yezhou Yang  
 **Status:** Under review — code & weights after acceptance
