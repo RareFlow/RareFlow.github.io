@@ -3,7 +3,7 @@
 **Authors:** Forouzan Fallah · Wenwen Li · Chia‑Yu Hsu · Hyunho Lee · Yezhou Yang  
 **Status:** Under review — code & weights after acceptance
 
-[**arXiv**]() [**Code**](https://github.com/rareflow/rareflow)
+[**arXiv**](https://arxiv.org/abs/2510.23816) [**Code**](https://github.com/rareflow/rareflow)
 
 
 ## BibTeX
