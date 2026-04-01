@@ -8,10 +8,10 @@
 
 ## BibTeX
 ```bibtex
-@inreview{fallah2026rareflow,
-  title   = {RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features},
-  author  = {Fallah, Forouzan and Li, Wenwen and Hsu, Chia-Yu and Lee, Hyunho and Yang, Yezhou},
-  year    = {2026},
-  note    = {Under review},
+@article{fallah2025rareflow,
+  title={RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features},
+  author={Fallah, Forouzan and Li, Wenwen and Hsu, Chia-Yu and Lee, Hyunho and Yang, Yezhou},
+  journal={arXiv preprint arXiv:2510.23816},
+  year={2025}
 }
 ```
