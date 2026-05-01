@@ -25,7 +25,7 @@
       --pastel-yellow:#f5e6a8;   /* center */
     }
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
     html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif}
     body{overflow-x:hidden}
     a{color:var(--brand);text-decoration:none}
@@ -33,20 +33,21 @@
     .wrap{max-width:var(--max);margin:auto;padding:24px}
     .hero{display:grid;gap:18px;align-items:center;padding:38px 0 24px}
     .badge,.chip,.pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:linear-gradient(180deg,#0f1220,#0b0d18)}
-    .badge{padding:6px 10px;width:max-content}
+    .badge{padding:6px 10px;width:max-content;max-width:100%}
     .chip{padding:6px 10px;font-size:13px}
     .pill{padding:8px 12px;margin:8px 8px 0 0}
-    h1{font-size:clamp(30px,4.4vw,54px);line-height:1.12;margin:0;letter-spacing:-.02em}
-    h2{font-size:clamp(24px,2.4vw,32px);line-height:1.2;margin:0 0 10px;letter-spacing:-.01em}
+    h1{font-size:clamp(26px,4.4vw,54px);line-height:1.12;margin:0;letter-spacing:-.02em;overflow-wrap:break-word}
+    h2{font-size:clamp(22px,2.4vw,32px);line-height:1.2;margin:0 0 10px;letter-spacing:-.01em;overflow-wrap:break-word}
     h3{font-size:18px;margin:0 0 8px}
-    p{margin:0 0 12px}
+    p{margin:0 0 12px;overflow-wrap:break-word}
     .tag{font-size:18px;color:var(--muted);max-width:78ch}
-    .authors{color:var(--muted)}
+    .authors{color:var(--muted);overflow-wrap:break-word}
     .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
     .btn{
       display:inline-flex;align-items:center;gap:8px;
       padding:10px 14px;border-radius:12px;border:1px solid var(--line);
-      background:linear-gradient(180deg,#11131e,#0e0f15);color:var(--ink);text-decoration:none
+      background:linear-gradient(180deg,#11131e,#0e0f15);color:var(--ink);text-decoration:none;
+      min-height:44px;
     }
     .btn:hover{text-decoration:none;border-color:rgba(142,227,255,.45)}
     .btn.primary{border-color:transparent;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b0c10;font-weight:700}
@@ -71,14 +72,14 @@
     .kpi .label{color:var(--muted);font-size:14px}
     .figure-grid{display:grid;gap:14px;margin-top:16px}
     @media(min-width:900px){.figure-grid.two{grid-template-columns:repeat(2,1fr)}.figure-grid.three{grid-template-columns:1.1fr .9fr}.figure-grid .wide{grid-column:1/-1}}
-    .table-scroll{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel2);margin-top:14px}
+    .table-scroll{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel2);margin-top:14px;-webkit-overflow-scrolling:touch}
     table{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
     th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
     th{color:var(--ink);background:rgba(142,227,255,.06)}
     tr:last-child td{border-bottom:0}
     .best{color:var(--good);font-weight:800}
     .second{color:var(--accent);font-weight:700}
-    .bib{white-space:pre-wrap;user-select:all;background:var(--panel2);border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .bib{white-space:pre-wrap;user-select:all;background:var(--panel2);border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow-x:auto;word-break:break-word}
     details{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
     summary{cursor:pointer;font-weight:700}
     footer{color:var(--muted);padding:28px 0}
@@ -86,7 +87,7 @@
     /* ─────────────────────────────────────────────────────────────
        BEFORE/AFTER COMPARE SLIDER
        ───────────────────────────────────────────────────────────── */
-    .compare{ position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:#0a0c13; }
+    .compare{ position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:#0a0c13; touch-action:pan-y; }
     .compare img{ display:block; width:100%; height:auto; user-select:none; pointer-events:none; }
     .compare .after{ position:absolute; inset:0; clip-path: inset(0 0 0 calc(var(--pos, 50%))); }
     .compare input[type="range"]{
@@ -94,8 +95,8 @@
     }
     .compare .handle{ position:absolute; top:0; bottom:0; left:calc(var(--pos, 50%)); width:2px; background:var(--accent); transform:translateX(-1px); z-index:2; pointer-events:none; }
     .compare .handle::after{
-      content:""; position:absolute; left:50%; top:50%; width:22px; height:22px; border-radius:50%; transform:translate(-50%,-50%);
-      background:var(--panel); border:2px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.35);
+      content:""; position:absolute; left:50%; top:50%; width:28px; height:28px; border-radius:50%; transform:translate(-50%,-50%);
+      background:var(--panel); border:2px solid var(--accent); box-shadow:0 6px 18px rgba(0,0,0,.45);
     }
     .compare .labels{ position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; z-index:1; pointer-events:none; }
     .compare .compare-badge{
@@ -109,13 +110,16 @@
     @media(min-width:760px){.compare-grid.two{grid-template-columns:repeat(2,1fr)}}
     .compare-caption{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
 
-    /* Interactive mind map */
+    /* ─────────────────────────────────────────────────────────────
+       MIND MAP — DESKTOP (radial layout)
+       ───────────────────────────────────────────────────────────── */
     .mindmap-panel{position:relative;overflow:hidden}
     .mindmap-panel:before{content:"";position:absolute;inset:-35% -20% auto auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(245,230,168,.10),transparent 62%);pointer-events:none}
     .mindmap-intro{max-width:76ch;color:var(--muted)}
+
+    /* Desktop radial map */
     .mindmap{position:relative;height:640px;margin-top:18px;border:1px solid var(--line);border-radius:20px;background:radial-gradient(circle at 50% 50%,rgba(245,230,168,.08),transparent 38%),linear-gradient(180deg,#0c101a,#0a0c13);overflow:hidden}
 
-    /* Main nodes */
     .mind-node{position:absolute;left:calc(50% + var(--x,0px));top:calc(50% + var(--y,0px));transform:translate(-50%,-50%);z-index:3;border:2px solid var(--node-color,var(--line));border-radius:18px;background:linear-gradient(180deg,#111827,#0d111a);color:var(--ink);padding:13px 16px;min-width:150px;box-shadow:0 12px 30px rgba(0,0,0,.28);cursor:pointer;text-align:center;font:inherit;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
     .mind-node .node-title{display:block;font-weight:800;line-height:1.1;color:var(--node-color,var(--ink))}
     .mind-node .node-sub{display:block;color:var(--muted);font-size:12px;margin-top:4px}
@@ -124,7 +128,6 @@
     .mind-node.branch:hover{transform:translate(-50%,-50%) scale(1.04);box-shadow:0 14px 36px rgba(0,0,0,.45)}
     .mind-node.branch.is-active{background:linear-gradient(180deg,color-mix(in srgb,var(--node-color) 28%,#0d111a),#0d111a);box-shadow:0 0 0 3px color-mix(in srgb,var(--node-color) 40%,transparent),0 14px 36px rgba(0,0,0,.4)}
 
-    /* Subnodes */
     .sub-node{position:absolute;left:calc(50% + var(--x,0px));top:calc(50% + var(--y,0px));transform:translate(-50%,-50%);z-index:4;border:1.5px solid color-mix(in srgb,var(--sub-color,var(--line)) 60%,transparent);border-radius:12px;background:linear-gradient(180deg,#0e1320,#0a0d14);color:var(--ink);padding:6px 10px;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s ease,background .15s ease,border-color .15s ease;opacity:0;pointer-events:none}
     .sub-node.is-visible{opacity:1;pointer-events:auto;animation:subnodeIn .35s ease forwards}
     .sub-node:hover{transform:translate(-50%,-50%) scale(1.08);background:linear-gradient(180deg,color-mix(in srgb,var(--sub-color) 22%,#0e1320),#0a0d14);border-color:var(--sub-color)}
@@ -134,15 +137,12 @@
       to{opacity:1;transform:translate(-50%,-50%) scale(1)}
     }
 
-    /* Spokes from center to main nodes */
     .spoke{position:absolute;left:50%;top:50%;width:var(--len);height:2px;z-index:1;background:linear-gradient(90deg,color-mix(in srgb,var(--spoke-color,#8ee3ff) 70%,transparent),transparent);transform-origin:0 50%;transform:rotate(var(--rot));opacity:.55}
 
-    /* Subspokes from main nodes to subnodes (rendered via SVG below) */
     .sub-spokes{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
     .sub-spokes line{stroke-width:1.4;opacity:0;transition:opacity .25s ease}
     .sub-spokes line.is-visible{opacity:.5}
 
-    /* Detail box - color matches selected node */
     .mind-detail{margin-top:14px;display:grid;gap:12px}
     .mind-detail .detail-card{
       border:2px solid var(--detail-color,var(--line));
@@ -155,16 +155,111 @@
     .mind-detail .detail-card .detail-pills span{font-size:12px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--detail-color,#8ee3ff) 18%,transparent);color:var(--detail-color,var(--ink));border:1px solid color-mix(in srgb,var(--detail-color,#8ee3ff) 40%,transparent)}
     .mind-tip{margin-top:10px;color:var(--muted);font-size:13px}
 
+    /* ─────────────────────────────────────────────────────────────
+       MIND MAP — MOBILE (accordion layout)
+       Desktop hides .mindmap-mobile; mobile hides .mindmap (radial).
+       ───────────────────────────────────────────────────────────── */
+    .mindmap-mobile{display:none}
+
     @media(max-width:760px){
-      .mindmap{height:auto;display:grid;gap:10px;padding:14px;background:linear-gradient(180deg,#0c101a,#0a0c13)}
-      .mind-node,.sub-node{position:static;transform:none;min-width:0;width:100%;text-align:left;opacity:1;pointer-events:auto;animation:none}
-      .mind-node.center{text-align:center;min-height:0}
-      .spoke,.sub-spokes{display:none}
-      .sub-node{margin-left:18px}
+      .mindmap{display:none}
+      .mindmap-mobile{display:block;margin-top:16px}
+
+      .mm-center{
+        position:relative;
+        border:2px solid var(--pastel-yellow);
+        border-radius:16px;
+        padding:16px 16px 14px;
+        background:linear-gradient(135deg,rgba(245,230,168,.18),rgba(189,215,242,.12)),#0b0d14;
+        text-align:center;
+        margin-bottom:14px;
+      }
+      .mm-center .mm-center-title{
+        font-size:20px;font-weight:800;color:var(--pastel-yellow);
+        letter-spacing:-.01em;line-height:1.15;
+      }
+      .mm-center .mm-center-sub{color:var(--muted);font-size:13px;margin-top:4px}
+      .mm-center .mm-center-body{
+        color:var(--ink);font-size:14px;line-height:1.55;margin-top:10px;
+        padding-top:10px;border-top:1px solid color-mix(in srgb,var(--pastel-yellow) 30%,transparent);
+        text-align:left;
+      }
+      .mm-center .mm-center-pills{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+      .mm-center .mm-center-pills span{
+        font-size:11.5px;padding:4px 10px;border-radius:999px;
+        background:color-mix(in srgb,var(--pastel-yellow) 18%,transparent);
+        color:var(--pastel-yellow);
+        border:1px solid color-mix(in srgb,var(--pastel-yellow) 45%,transparent);
+      }
+
+      .mm-branches{display:grid;gap:10px}
+
+      .mm-branch{
+        --c:var(--line);
+        border:1.5px solid color-mix(in srgb,var(--c) 55%,var(--line));
+        border-radius:14px;
+        background:linear-gradient(180deg,#101622,#0b0d14);
+        overflow:hidden;
+        transition:border-color .2s ease,box-shadow .2s ease;
+      }
+      .mm-branch[open]{
+        border-color:var(--c);
+        box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 8px 22px rgba(0,0,0,.3);
+      }
+      .mm-branch summary{
+        list-style:none;
+        display:flex;align-items:center;gap:12px;
+        padding:14px 14px;
+        cursor:pointer;
+        min-height:56px;
+        font-weight:800;color:var(--ink);
+      }
+      .mm-branch summary::-webkit-details-marker{display:none}
+      .mm-branch .mm-dot{
+        flex:0 0 auto;width:12px;height:12px;border-radius:50%;
+        background:var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 22%,transparent);
+      }
+      .mm-branch .mm-titlewrap{flex:1;min-width:0}
+      .mm-branch .mm-title{display:block;color:var(--c);font-size:15.5px;line-height:1.15}
+      .mm-branch .mm-sub{display:block;color:var(--muted);font-size:12.5px;font-weight:500;margin-top:2px}
+      .mm-branch .mm-chevron{
+        flex:0 0 auto;width:22px;height:22px;display:grid;place-items:center;color:var(--muted);
+        transition:transform .25s ease;
+      }
+      .mm-branch[open] .mm-chevron{transform:rotate(180deg);color:var(--c)}
+
+      .mm-body{
+        padding:0 14px 14px;
+        border-top:1px solid color-mix(in srgb,var(--c) 22%,transparent);
+        margin-top:0;
+      }
+      .mm-body p{
+        color:var(--ink);font-size:14px;line-height:1.55;
+        margin:12px 0 0;
+      }
+      .mm-pills{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+      .mm-pills button{
+        font:inherit;font-size:12px;font-weight:600;
+        padding:6px 11px;border-radius:999px;
+        background:color-mix(in srgb,var(--c) 14%,transparent);
+        color:var(--c);
+        border:1px solid color-mix(in srgb,var(--c) 38%,transparent);
+        cursor:pointer;
+        min-height:32px;
+      }
+      .mm-pills button:active{transform:translateY(1px)}
+
+      .mm-jump{
+        margin-top:12px;display:inline-flex;align-items:center;gap:6px;
+        font-size:13px;font-weight:700;color:var(--c);
+        background:transparent;border:0;padding:6px 0;cursor:pointer;
+      }
+      .mm-jump::after{content:"→";transition:transform .2s ease}
+      .mm-jump:hover::after{transform:translateX(3px)}
     }
 
     /* Floating theme toggle */
-    .theme-toggle{position:fixed;right:18px;bottom:18px;z-index:1000;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);cursor:pointer;user-select:none}
+    .theme-toggle{position:fixed;right:14px;bottom:14px;z-index:1000;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.35);cursor:pointer;user-select:none;min-height:44px}
     .theme-toggle .label{font-size:14px;color:var(--muted)}
     .theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 
@@ -181,6 +276,24 @@
     html[data-theme="light"] .sub-node{background:linear-gradient(180deg,#ffffff,#f6f7fb);color:var(--ink)}
     html[data-theme="light"] .mind-detail .detail-card{background:linear-gradient(180deg,color-mix(in srgb,var(--detail-color,#8ee3ff) 18%,#ffffff),color-mix(in srgb,var(--detail-color,#8ee3ff) 6%,#f8fafc))}
     html[data-theme="light"] .mind-detail .detail-card p{color:var(--ink)}
+    html[data-theme="light"] .mm-center{background:linear-gradient(135deg,rgba(245,230,168,.35),rgba(189,215,242,.25)),#ffffff}
+    html[data-theme="light"] .mm-center .mm-center-body{color:var(--ink)}
+    html[data-theme="light"] .mm-branch{background:linear-gradient(180deg,#ffffff,#f8fafc)}
+    html[data-theme="light"] .mm-body p{color:var(--ink)}
+
+    /* Mobile global tightening */
+    @media(max-width:760px){
+      .wrap{padding:14px}
+      .hero{padding:18px 0 8px;gap:14px}
+      section.panel{padding:16px;border-radius:16px;margin:14px 0}
+      .tag{font-size:16px}
+      .btns{gap:8px}
+      .btn{padding:10px 12px;font-size:14px}
+      .pill{padding:6px 10px;font-size:13px;margin:6px 6px 0 0}
+      .kpi .val{font-size:20px}
+      figure figcaption{font-size:13px;padding:8px 10px}
+      .eyebrow{font-size:11px}
+    }
   </style>
 </head>
 <body>
@@ -199,24 +312,22 @@
 
     <section class="panel mindmap-panel" id="mindmap">
       <div class="eyebrow">Overview</div>
+
+      <!-- DESKTOP: radial mind map -->
       <div class="mindmap" role="group" aria-label="Interactive RareFlow mind map">
-        <!-- Main spokes from center -->
         <span class="spoke" style="--len:200px;--rot:-138deg;--spoke-color:#f7c8d9"></span>
         <span class="spoke" style="--len:200px;--rot:-42deg;--spoke-color:#bdd7f2"></span>
         <span class="spoke" style="--len:230px;--rot:25deg;--spoke-color:#c5e8c8"></span>
         <span class="spoke" style="--len:230px;--rot:155deg;--spoke-color:#fcd9b6"></span>
         <span class="spoke" style="--len:200px;--rot:90deg;--spoke-color:#d6c8ec"></span>
 
-        <!-- SVG layer for subnode connectors -->
         <svg class="sub-spokes" id="subSpokes" preserveAspectRatio="none" aria-hidden="true"></svg>
 
-        <!-- Center -->
         <button class="mind-node center is-active" type="button" data-key="rareflow" data-target="abstract" aria-expanded="true">
           <span class="node-title">RareFlow</span>
           <span class="node-sub">semantic + LR control</span>
         </button>
 
-        <!-- Main branches -->
         <button class="mind-node branch" type="button" style="--x:-150px;--y:-135px;--node-color:var(--pastel-pink)" data-key="problem" data-target="problem" aria-expanded="false">
           <span class="node-title">Problem</span>
           <span class="node-sub">sharp is not enough</span>
@@ -238,35 +349,154 @@
           <span class="node-sub">BreizhSR + SEN2NAIP</span>
         </button>
 
-        <!-- Subnodes: PROBLEM (top-left, pink) -->
+        <!-- PROBLEM subnodes -->
         <button class="sub-node" type="button" style="--x:-310px;--y:-225px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="problem">Cross-sensor SR</button>
         <button class="sub-node" type="button" style="--x:-360px;--y:-150px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="problem">Rare features (RTS)</button>
         <button class="sub-node" type="button" style="--x:-365px;--y:-80px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Scarce data</button>
         <button class="sub-node" type="button" style="--x:-310px;--y:-15px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Temporal mismatch</button>
         <button class="sub-node" type="button" style="--x:-220px;--y:-235px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Spatial mismatch</button>
 
-        <!-- Subnodes: METHOD (top-right, blue) -->
+        <!-- METHOD subnodes -->
         <button class="sub-node" type="button" style="--x:220px;--y:-235px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Semantic guidance</button>
         <button class="sub-node" type="button" style="--x:310px;--y:-225px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">LR ControlNet</button>
         <button class="sub-node" type="button" style="--x:360px;--y:-150px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Alpha gate</button>
         <button class="sub-node" type="button" style="--x:355px;--y:-70px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Consistency loss</button>
 
-        <!-- Subnodes: RESULTS (right, green) -->
+        <!-- RESULTS subnodes -->
         <button class="sub-node" type="button" style="--x:360px;--y:30px;--sub-color:var(--pastel-green)" data-parent="results" data-target="results">Main results</button>
         <button class="sub-node" type="button" style="--x:355px;--y:110px;--sub-color:var(--pastel-green)" data-parent="results" data-target="ablation">Ablation</button>
         <button class="sub-node" type="button" style="--x:300px;--y:175px;--sub-color:var(--pastel-green)" data-parent="results" data-target="experts">Human evaluation</button>
 
-        <!-- Subnodes: DATA (left, peach) -->
+        <!-- DATA subnodes -->
         <button class="sub-node" type="button" style="--x:-360px;--y:30px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">Sentinel-2 ↔ Maxar</button>
         <button class="sub-node" type="button" style="--x:-355px;--y:110px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">Arctic regions</button>
         <button class="sub-node" type="button" style="--x:-300px;--y:175px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">~800 RTS pairs</button>
         <button class="sub-node" type="button" style="--x:-210px;--y:215px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="method">VLM captions</button>
 
-        <!-- Subnodes: GENERALIZATION (bottom, purple) -->
+        <!-- GENERALIZATION subnodes -->
         <button class="sub-node" type="button" style="--x:-110px;--y:280px;--sub-color:var(--pastel-purple)" data-parent="generalization" data-target="generalization">BreizhSR</button>
         <button class="sub-node" type="button" style="--x:110px;--y:280px;--sub-color:var(--pastel-purple)" data-parent="generalization" data-target="generalization">SEN2NAIP</button>
       </div>
       <div class="mind-detail" id="mindDetail" aria-live="polite"></div>
+
+      <!-- MOBILE: accordion mind map -->
+      <div class="mindmap-mobile" aria-label="RareFlow overview (mobile)">
+        <div class="mm-center">
+          <div class="mm-center-title">RareFlow</div>
+          <div class="mm-center-sub">semantic + LR control</div>
+          <div class="mm-center-body">A semantic-guided, LR-controlled flow-matching framework for cross-sensor remote-sensing SR. It translates Sentinel-2 inputs into Maxar-like outputs while staying grounded in the observed scene.</div>
+          <div class="mm-center-pills">
+            <span>frozen SD3</span>
+            <span>gated ControlNet</span>
+            <span>consistency loss</span>
+          </div>
+        </div>
+
+        <div class="mm-branches">
+          <details class="mm-branch" style="--c:var(--pastel-pink)">
+            <summary>
+              <span class="mm-dot" aria-hidden="true"></span>
+              <span class="mm-titlewrap">
+                <span class="mm-title">Problem</span>
+                <span class="mm-sub">sharp is not enough</span>
+              </span>
+              <span class="mm-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mm-body">
+              <p>Cross-sensor SR is not just sharpening. The output must preserve measured scene layout, recover plausible rare-feature detail, and match the target sensor domain without inventing unsupported structures.</p>
+              <div class="mm-pills">
+                <button type="button" data-jump="problem">Cross-sensor SR</button>
+                <button type="button" data-jump="problem">Rare features (RTS)</button>
+                <button type="button" data-jump="dataset">Scarce data</button>
+                <button type="button" data-jump="dataset">Temporal mismatch</button>
+                <button type="button" data-jump="dataset">Spatial mismatch</button>
+              </div>
+              <button class="mm-jump" type="button" data-jump="problem">Read the section</button>
+            </div>
+          </details>
+
+          <details class="mm-branch" style="--c:var(--pastel-blue)">
+            <summary>
+              <span class="mm-dot" aria-hidden="true"></span>
+              <span class="mm-titlewrap">
+                <span class="mm-title">Method</span>
+                <span class="mm-sub">gated dual guidance</span>
+              </span>
+              <span class="mm-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mm-body">
+              <p>RareFlow uses a frozen SD3 backbone, trainable LR-conditioned ControlNet residuals, learned alpha gates, semantic guidance from text, and a consistency-guided objective with frequency, color, and perceptual terms.</p>
+              <div class="mm-pills">
+                <button type="button" data-jump="method">Semantic guidance</button>
+                <button type="button" data-jump="method">LR ControlNet</button>
+                <button type="button" data-jump="method">Alpha gate</button>
+                <button type="button" data-jump="method">Consistency loss</button>
+              </div>
+              <button class="mm-jump" type="button" data-jump="method">Read the section</button>
+            </div>
+          </details>
+
+          <details class="mm-branch" style="--c:var(--pastel-green)">
+            <summary>
+              <span class="mm-dot" aria-hidden="true"></span>
+              <span class="mm-titlewrap">
+                <span class="mm-title">Results</span>
+                <span class="mm-sub">best on 6/8 metrics</span>
+              </span>
+              <span class="mm-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mm-body">
+              <p>On paired RTS data, RareFlow leads six of eight reported metrics — FID 116.16, SAM 3.86, SSIM 0.59, LPIPS 0.36, DISTS 0.30, NIQE 5.36 — and is preferred by domain experts.</p>
+              <div class="mm-pills">
+                <button type="button" data-jump="results">Main results</button>
+                <button type="button" data-jump="ablation">Ablation</button>
+                <button type="button" data-jump="experts">Human evaluation</button>
+              </div>
+              <button class="mm-jump" type="button" data-jump="results">Read the section</button>
+            </div>
+          </details>
+
+          <details class="mm-branch" style="--c:var(--pastel-peach)">
+            <summary>
+              <span class="mm-dot" aria-hidden="true"></span>
+              <span class="mm-titlewrap">
+                <span class="mm-title">Data</span>
+                <span class="mm-sub">RTS benchmark</span>
+              </span>
+              <span class="mm-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mm-body">
+              <p>The RTS benchmark pairs 10 m Sentinel-2 imagery with 2 m Maxar targets across Arctic regions. About 800 image pairs come with VLM-generated captions for semantic guidance.</p>
+              <div class="mm-pills">
+                <button type="button" data-jump="dataset">Sentinel-2 ↔ Maxar</button>
+                <button type="button" data-jump="dataset">Arctic regions</button>
+                <button type="button" data-jump="dataset">~800 RTS pairs</button>
+                <button type="button" data-jump="method">VLM captions</button>
+              </div>
+              <button class="mm-jump" type="button" data-jump="dataset">Read the section</button>
+            </div>
+          </details>
+
+          <details class="mm-branch" style="--c:var(--pastel-purple)">
+            <summary>
+              <span class="mm-dot" aria-hidden="true"></span>
+              <span class="mm-titlewrap">
+                <span class="mm-title">Generalization</span>
+                <span class="mm-sub">BreizhSR + SEN2NAIP</span>
+              </span>
+              <span class="mm-chevron" aria-hidden="true">▾</span>
+            </summary>
+            <div class="mm-body">
+              <p>Beyond Arctic thaw slumps, RareFlow transfers to BreizhSR and SEN2NAIP, improving FID and several fidelity / perceptual metrics on both public cross-sensor SR benchmarks.</p>
+              <div class="mm-pills">
+                <button type="button" data-jump="generalization">BreizhSR</button>
+                <button type="button" data-jump="generalization">SEN2NAIP</button>
+              </div>
+              <button class="mm-jump" type="button" data-jump="generalization">Read the section</button>
+            </div>
+          </details>
+        </div>
+      </div>
     </section>
 
     <section class="panel grid cols-2" id="problem">
@@ -291,7 +521,6 @@
       <p>High spatial resolution satellite imagery is critical for monitoring fine-scale Earth surface processes, but is often limited by cost and revisit time. This work studies cross-sensor super-resolution (SR) to reduce this gap by translating 10 m Sentinel-2 imagery into 2 m Maxar-like imagery in a data-scarce, domain-shifted setting, with a focus on rare geomorphic features such as retrogressive thaw slumps (RTS). We propose RareFlow, a semantic-guided generative AI framework for cross-sensor super-resolution based on a flow-matching formulation, designed to produce visually plausible and physically reliable high-resolution images. </p>
       <p>RareFlow uses dual conditioning to guide the generation process: (1) a gated ControlNet that preserves scene geometry from low-resolution (LR) input, and (2) text-based semantic guidance that injects contextual information when the target phenomenon is rare. To ensure high-fidelity outputs, we introduce a multifaceted loss function that anchors the output to the high-resolution (HR) ground truth by jointly enforcing frequency alignment, perceptual similarity, and color consistency. RareFlow's performance is systematically evaluated on a newly curated benchmark of multi-sensor satellite imagery for rare Earth feature detection, and its generalizability is demonstrated on two public remote sensing benchmarks, SEN2NAIP and BreizhSR. Human evaluation with domain experts is also conducted to further verify RareFlow's effectiveness in generating high-fidelity super-resolved images for scientific analysis.</p>
 
-      <!-- Before/After comparison sliders -->
       <div class="compare-grid two" aria-label="Interactive super-resolution comparisons">
         <div>
           <figure class="compare" aria-label="Low-resolution input versus super-resolved (RareFlow)">
@@ -472,14 +701,13 @@ These results suggest that the components are complementary. Pre-trained Control
     const root = document.documentElement;
     const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
 
-    // Pastel palette resolved from CSS vars (kept in sync)
     const PASTELS = {
-      rareflow:       '#f5e6a8', // yellow
-      problem:        '#f7c8d9', // pink
-      method:         '#bdd7f2', // blue
-      results:        '#c5e8c8', // green
-      data:           '#fcd9b6', // peach
-      generalization: '#d6c8ec'  // purple
+      rareflow:       '#f5e6a8',
+      problem:        '#f7c8d9',
+      method:         '#bdd7f2',
+      results:        '#c5e8c8',
+      data:           '#fcd9b6',
+      generalization: '#d6c8ec'
     };
 
     const mindText = {
@@ -544,13 +772,11 @@ These results suggest that the components are complementary. Pre-trained Control
       drawSubSpokes(null);
     }
 
-    // Draw lines from each main branch node to its visible subnodes
     function drawSubSpokes(activeKey) {
       const svg = document.getElementById('subSpokes');
       const mindmap = document.querySelector('.mindmap');
       if (!svg || !mindmap) return;
 
-      // Skip on small layouts
       if (window.innerWidth <= 760) {
         svg.innerHTML = '';
         return;
@@ -592,7 +818,6 @@ These results suggest that the components are complementary. Pre-trained Control
       const mainNodes = document.querySelectorAll('.mind-node');
       const subNodes = document.querySelectorAll('.sub-node');
 
-      // Initial render: center node selected
       renderMindDetail('rareflow');
 
       mainNodes.forEach((node) => {
@@ -600,7 +825,6 @@ These results suggest that the components are complementary. Pre-trained Control
           e.stopPropagation();
           const key = node.getAttribute('data-key');
 
-          // Update active state
           mainNodes.forEach((n) => {
             n.classList.remove('is-active');
             n.setAttribute('aria-expanded', 'false');
@@ -608,10 +832,8 @@ These results suggest that the components are complementary. Pre-trained Control
           node.classList.add('is-active');
           node.setAttribute('aria-expanded', 'true');
 
-          // Render colored detail card
           renderMindDetail(key);
 
-          // Show subnodes for this branch (or hide all if center)
           if (key === 'rareflow') {
             hideAllSubnodes();
           } else {
@@ -632,7 +854,6 @@ These results suggest that the components are complementary. Pre-trained Control
         });
       });
 
-      // Redraw spokes on resize
       window.addEventListener('resize', () => {
         const active = document.querySelector('.mind-node.branch.is-active');
         if (active) {
@@ -641,7 +862,34 @@ These results suggest that the components are complementary. Pre-trained Control
       });
     }
 
-    // Initialize before/after compare sliders
+    function initMobileMindMap() {
+      // Pill / "Read the section" buttons → smooth scroll to section
+      document.querySelectorAll('.mindmap-mobile [data-jump]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const id = btn.getAttribute('data-jump');
+          const target = document.getElementById(id);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + id);
+          }
+        });
+      });
+
+      // Accordion behavior: opening one closes the others (single-open)
+      const branches = document.querySelectorAll('.mindmap-mobile .mm-branch');
+      branches.forEach((br) => {
+        br.addEventListener('toggle', () => {
+          if (br.open) {
+            branches.forEach((other) => {
+              if (other !== br && other.open) other.open = false;
+            });
+          }
+        });
+      });
+    }
+
     function initCompareSliders() {
       document.querySelectorAll('.compare').forEach((compare) => {
         const range = compare.querySelector('input[type="range"]');
@@ -664,6 +912,7 @@ These results suggest that the components are complementary. Pre-trained Control
       const yEl = document.getElementById('y');
       if (yEl) yEl.textContent = new Date().getFullYear();
       initMindMap();
+      initMobileMindMap();
       initCompareSliders();
 
       const btn = document.getElementById('themeToggle');
@@ -687,7 +936,6 @@ These results suggest that the components are complementary. Pre-trained Control
           btn.setAttribute('aria-label', 'Switch to light mode');
           btn.setAttribute('aria-pressed', 'true');
         }
-        // Redraw spokes after theme change in case layout shifted
         const active = document.querySelector('.mind-node.branch.is-active');
         if (active) drawSubSpokes(active.getAttribute('data-key'));
       }
