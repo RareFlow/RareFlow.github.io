@@ -3,90 +3,88 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🛰️RareFlow: Physics-Aware Flow-Matching for Cross-Sensor SR</title>
-  <meta name="description" content="RareFlow: a physics-aware, dual-conditioned framework for cross-sensor super-resolution of rare Earth features with uncertainty gating." />
-  <meta property="og:title" content="RareFlow: Physics-Aware Flow-Matching for Cross-Sensor SR" />
+  <title>RareFlow</title>
+  <meta name="description" content="RareFlow is a gated dual-conditioning flow-matching model for cross-sensor remote-sensing super-resolution from Sentinel-2 to Maxar-like imagery." />
+  <meta property="og:title" content="RareFlow" />
   <meta property="og:type" content="website" />
-  <meta property="og:description" content="RareFlow balances geometric fidelity and semantic synthesis, enforces radiometric consistency, and reduces hallucinations under OOD shift." />
-  <meta property="og:image" content="./assets/intro.png" />
+  <meta property="og:description" content="Semantic guidance, LR-conditioned ControlNet gates, and consistency-guided training for reliable cross-sensor remote-sensing SR." />
+  <meta property="og:image" content="./assets/framework.png" />
   <link rel="icon" href="assets/favicon.svg" />
   <style>
     :root{
-      --bg: #0b0c10; --panel:#0f1117; --ink:#e8e8ea; --muted:#b7b9c0;
+      --bg:#0b0c10; --panel:#0f1117; --panel2:#0b0d14; --ink:#e8e8ea; --muted:#b7b9c0;
       --brand:#8ee3ff; --brand2:#a5f3c7; --accent:#ffd166; --line:#1b1f2a;
-      --radius:18px; --pad:18px; --max:1100px;
+      --good:#a5f3c7; --warn:#ffd166; --radius:18px; --pad:18px; --max:1120px;
+
+      /* Pastel palette for mind map */
+      --pastel-pink:#f7c8d9;     /* problem */
+      --pastel-blue:#bdd7f2;     /* method */
+      --pastel-green:#c5e8c8;    /* results */
+      --pastel-peach:#fcd9b6;    /* data */
+      --pastel-purple:#d6c8ec;   /* generalization */
+      --pastel-yellow:#f5e6a8;   /* center */
     }
     *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Apple Color Emoji,Segoe UI Emoji}
+    html{scroll-behavior:smooth}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    body{overflow-x:hidden}
     a{color:var(--brand);text-decoration:none}
     a:hover{text-decoration:underline}
     .wrap{max-width:var(--max);margin:auto;padding:24px}
-    header.hero{display:grid;gap:18px;align-items:center;padding:36px 0}
-    .badge{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:linear-gradient(180deg,#0f1220,#0b0d18)}
-    h1{font-size:clamp(28px,4vw,48px);line-height:1.15;margin:0}
-    .tag{font-size:18px;color:var(--muted);margin-top:4px}
+    .hero{display:grid;gap:18px;align-items:center;padding:38px 0 24px}
+    .badge,.chip,.pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:linear-gradient(180deg,#0f1220,#0b0d18)}
+    .badge{padding:6px 10px;width:max-content}
+    .chip{padding:6px 10px;font-size:13px}
+    .pill{padding:8px 12px;margin:8px 8px 0 0}
+    h1{font-size:clamp(30px,4.4vw,54px);line-height:1.12;margin:0;letter-spacing:-.02em}
+    h2{font-size:clamp(24px,2.4vw,32px);line-height:1.2;margin:0 0 10px;letter-spacing:-.01em}
+    h3{font-size:18px;margin:0 0 8px}
+    p{margin:0 0 12px}
+    .tag{font-size:18px;color:var(--muted);max-width:78ch}
     .authors{color:var(--muted)}
-    .pill{display:inline-block;border:1px solid var(--line);padding:8px 12px;border-radius:999px;margin-right:8px;margin-top:8px}
-    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
     .btn{
       display:inline-flex;align-items:center;gap:8px;
       padding:10px 14px;border-radius:12px;border:1px solid var(--line);
-      background:linear-gradient(180deg,#11131e,#0e0f15); color:var(--ink)
+      background:linear-gradient(180deg,#11131e,#0e0f15);color:var(--ink);text-decoration:none
     }
-    .btn.primary{border-color:transparent;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b0c10;font-weight:600}
+    .btn:hover{text-decoration:none;border-color:rgba(142,227,255,.45)}
+    .btn.primary{border-color:transparent;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#0b0c10;font-weight:700}
     .grid{display:grid;gap:18px}
-    @media(min-width:960px){ .grid.cols-2{grid-template-columns:1.1fr 0.9fr} .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
-    section.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
-    section.panel h2{margin-top:0;margin-bottom:6px;font-size:24px}
+    @media(min-width:900px){.grid.cols-2{grid-template-columns:1.05fr .95fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}}
+    section.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:18px 0}
     .muted{color:var(--muted)}
+    .small{font-size:14px}
+    .eyebrow{color:var(--brand2);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;margin-bottom:8px}
     figure{margin:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0c13}
     figure img{display:block;width:100%;height:auto}
     figure figcaption{padding:10px 12px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
-    .kpis{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
-    @media(min-width:780px){ .kpis{grid-template-columns:repeat(4,1fr)} }
-    .kpi{background:#0b0d14;border:1px solid var(--line);border-radius:14px;padding:14px}
-    .kpi .val{font-size:22px;font-weight:700}
-    code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .bib{white-space:pre-wrap;user-select:all; background:var(--panel);border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;}
-    footer{color:var(--muted);padding:28px 0}
     .callout{border:1px solid var(--line);background:linear-gradient(180deg,#101424,#0e111a);border-radius:16px;padding:16px}
-    .small{font-size:14px}
-    .chip{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;background:#0b0d14;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:13px}
-
-    /* Light theme variables */
-    html[data-theme="light"]{
-      --bg:#ffffff; --panel:#f8fafc; --ink:#0b0c10; --muted:#64748b;
-      --brand:#8ee3ff; --brand2:#a5f3c7; --accent:#ffd166; --line:#e5e7eb;
-    }
-
-    /* Smooth theme transition */
-    html, body { transition: background-color .25s ease, color .25s ease; }
-
-    /* Component tweaks so they look nice in light mode */
-    html[data-theme="light"] .badge{ background:linear-gradient(180deg,#ffffff,#f8fafc); }
-    html[data-theme="light"] .btn{ background:linear-gradient(180deg,#ffffff,#f3f4f6); color:var(--ink); }
-    html[data-theme="light"] figure{ background:#f1f5f9; }
-    html[data-theme="light"] .kpi,
-    html[data-theme="light"] .chip{ background:#ffffff; }
-    html[data-theme="light"] .callout{ background:linear-gradient(180deg,#ffffff,#f6f7fb); }
-
-    /* Floating theme toggle */
-    .theme-toggle{
-      position:fixed; right:18px; bottom:18px; z-index:1000;
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 12px; border-radius:999px;
-      background:var(--panel); color:var(--ink);
-      border:1px solid var(--line);
-      box-shadow:0 6px 24px rgba(0,0,0,.18);
-      cursor:pointer; user-select:none;
-    }
-    .theme-toggle .icon{ font-size:16px; line-height:1; }
-    .theme-toggle .label{ font-size:14px; color:var(--muted); }
-    .theme-toggle:focus-visible{ outline:2px solid var(--brand); outline-offset:2px; }
+    .cards{display:grid;gap:12px}
+    @media(min-width:760px){.cards{grid-template-columns:repeat(2,1fr)}.cards.three{grid-template-columns:repeat(3,1fr)}}
+    .card{background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:16px}
+    .card strong{color:var(--ink)}
+    .kpis{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+    @media(min-width:860px){.kpis{grid-template-columns:repeat(4,1fr)}}
+    .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .kpi .val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+    .kpi .label{color:var(--muted);font-size:14px}
+    .figure-grid{display:grid;gap:14px;margin-top:16px}
+    @media(min-width:900px){.figure-grid.two{grid-template-columns:repeat(2,1fr)}.figure-grid.three{grid-template-columns:1.1fr .9fr}.figure-grid .wide{grid-column:1/-1}}
+    .table-scroll{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel2);margin-top:14px}
+    table{width:100%;border-collapse:collapse;min-width:720px;font-size:14px}
+    th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+    th{color:var(--ink);background:rgba(142,227,255,.06)}
+    tr:last-child td{border-bottom:0}
+    .best{color:var(--good);font-weight:800}
+    .second{color:var(--accent);font-weight:700}
+    .bib{white-space:pre-wrap;user-select:all;background:var(--panel2);border:1px dashed var(--line);padding:14px;border-radius:12px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    details{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+    summary{cursor:pointer;font-weight:700}
+    footer{color:var(--muted);padding:28px 0}
 
     /* ─────────────────────────────────────────────────────────────
-       BEFORE/AFTER TEASER COMPARE SLIDER
-       Drop in two images: LR (before) and SR (after). Accessible + no libs.
+       BEFORE/AFTER COMPARE SLIDER
        ───────────────────────────────────────────────────────────── */
     .compare{ position:relative; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:#0a0c13; }
     .compare img{ display:block; width:100%; height:auto; user-select:none; pointer-events:none; }
@@ -99,209 +97,372 @@
       content:""; position:absolute; left:50%; top:50%; width:22px; height:22px; border-radius:50%; transform:translate(-50%,-50%);
       background:var(--panel); border:2px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.35);
     }
-    .compare .labels{ position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; z-index:1; }
-    .compare .badge{ backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85)); border-color:rgba(255,255,255,.12); }
-    html[data-theme="light"] .compare .badge{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85)); }
+    .compare .labels{ position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; z-index:1; pointer-events:none; }
+    .compare .compare-badge{
+      display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:13px;
+      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85));
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--ink);
+    }
+    .compare-grid{display:grid;gap:14px;margin-top:14px}
+    @media(min-width:760px){.compare-grid.two{grid-template-columns:repeat(2,1fr)}}
+    .compare-caption{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
 
-    /* Method figure can be wide; ensure it doesn't shrink in a 2-col grid */
-    .method-figure img{ width:100%; height:auto; display:block; }
-      /* Quad teaser grid (4 separate images) */
-    .quad{ display:grid; gap:12px; grid-template-columns:repeat(2,1fr); }
-    .tile{ position:relative; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#0a0c13; }
-    .tile img{ display:block; width:100%; height:auto; }
-    .tile .badge{ position:absolute; top:10px; left:10px; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(16,18,28,.85), rgba(12,14,22,.85)); border-color:rgba(255,255,255,.12); }
-    html[data-theme="light"] .tile .badge{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85)); }
+    /* Interactive mind map */
+    .mindmap-panel{position:relative;overflow:hidden}
+    .mindmap-panel:before{content:"";position:absolute;inset:-35% -20% auto auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(245,230,168,.10),transparent 62%);pointer-events:none}
+    .mindmap-intro{max-width:76ch;color:var(--muted)}
+    .mindmap{position:relative;height:640px;margin-top:18px;border:1px solid var(--line);border-radius:20px;background:radial-gradient(circle at 50% 50%,rgba(245,230,168,.08),transparent 38%),linear-gradient(180deg,#0c101a,#0a0c13);overflow:hidden}
 
-    @media (min-width: 960px){
-  .cols-2-even{ grid-template-columns: repeat(2, 1fr); }
-}
-.span-all{ grid-column: 1 / -1; }
-.abstract-narrow{ max-width: 72ch; margin-inline: auto; }
+    /* Main nodes */
+    .mind-node{position:absolute;left:calc(50% + var(--x,0px));top:calc(50% + var(--y,0px));transform:translate(-50%,-50%);z-index:3;border:2px solid var(--node-color,var(--line));border-radius:18px;background:linear-gradient(180deg,#111827,#0d111a);color:var(--ink);padding:13px 16px;min-width:150px;box-shadow:0 12px 30px rgba(0,0,0,.28);cursor:pointer;text-align:center;font:inherit;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+    .mind-node .node-title{display:block;font-weight:800;line-height:1.1;color:var(--node-color,var(--ink))}
+    .mind-node .node-sub{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+    .mind-node.center{min-width:200px;min-height:90px;--node-color:var(--pastel-yellow);background:linear-gradient(135deg,rgba(245,230,168,.22),rgba(189,215,242,.16)),#0b0d14}
+    .mind-node.center .node-title{color:var(--pastel-yellow);font-size:18px}
+    .mind-node.branch:hover{transform:translate(-50%,-50%) scale(1.04);box-shadow:0 14px 36px rgba(0,0,0,.45)}
+    .mind-node.branch.is-active{background:linear-gradient(180deg,color-mix(in srgb,var(--node-color) 28%,#0d111a),#0d111a);box-shadow:0 0 0 3px color-mix(in srgb,var(--node-color) 40%,transparent),0 14px 36px rgba(0,0,0,.4)}
 
+    /* Subnodes */
+    .sub-node{position:absolute;left:calc(50% + var(--x,0px));top:calc(50% + var(--y,0px));transform:translate(-50%,-50%);z-index:4;border:1.5px solid color-mix(in srgb,var(--sub-color,var(--line)) 60%,transparent);border-radius:12px;background:linear-gradient(180deg,#0e1320,#0a0d14);color:var(--ink);padding:6px 10px;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center;font-family:inherit;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s ease,background .15s ease,border-color .15s ease;opacity:0;pointer-events:none}
+    .sub-node.is-visible{opacity:1;pointer-events:auto;animation:subnodeIn .35s ease forwards}
+    .sub-node:hover{transform:translate(-50%,-50%) scale(1.08);background:linear-gradient(180deg,color-mix(in srgb,var(--sub-color) 22%,#0e1320),#0a0d14);border-color:var(--sub-color)}
+
+    @keyframes subnodeIn{
+      from{opacity:0;transform:translate(-50%,-50%) scale(.6)}
+      to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    }
+
+    /* Spokes from center to main nodes */
+    .spoke{position:absolute;left:50%;top:50%;width:var(--len);height:2px;z-index:1;background:linear-gradient(90deg,color-mix(in srgb,var(--spoke-color,#8ee3ff) 70%,transparent),transparent);transform-origin:0 50%;transform:rotate(var(--rot));opacity:.55}
+
+    /* Subspokes from main nodes to subnodes (rendered via SVG below) */
+    .sub-spokes{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+    .sub-spokes line{stroke-width:1.4;opacity:0;transition:opacity .25s ease}
+    .sub-spokes line.is-visible{opacity:.5}
+
+    /* Detail box - color matches selected node */
+    .mind-detail{margin-top:14px;display:grid;gap:12px}
+    .mind-detail .detail-card{
+      border:2px solid var(--detail-color,var(--line));
+      background:linear-gradient(180deg,color-mix(in srgb,var(--detail-color,#8ee3ff) 12%,#0e1320),color-mix(in srgb,var(--detail-color,#8ee3ff) 4%,#0a0d14));
+      border-radius:15px;padding:18px;transition:border-color .25s ease,background .25s ease
+    }
+    .mind-detail .detail-card h3{color:var(--detail-color,var(--ink));font-size:20px}
+    .mind-detail .detail-card p{color:var(--ink);margin-bottom:0}
+    .mind-detail .detail-card .detail-pills{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+    .mind-detail .detail-card .detail-pills span{font-size:12px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--detail-color,#8ee3ff) 18%,transparent);color:var(--detail-color,var(--ink));border:1px solid color-mix(in srgb,var(--detail-color,#8ee3ff) 40%,transparent)}
+    .mind-tip{margin-top:10px;color:var(--muted);font-size:13px}
+
+    @media(max-width:760px){
+      .mindmap{height:auto;display:grid;gap:10px;padding:14px;background:linear-gradient(180deg,#0c101a,#0a0c13)}
+      .mind-node,.sub-node{position:static;transform:none;min-width:0;width:100%;text-align:left;opacity:1;pointer-events:auto;animation:none}
+      .mind-node.center{text-align:center;min-height:0}
+      .spoke,.sub-spokes{display:none}
+      .sub-node{margin-left:18px}
+    }
+
+    /* Floating theme toggle */
+    .theme-toggle{position:fixed;right:18px;bottom:18px;z-index:1000;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18);cursor:pointer;user-select:none}
+    .theme-toggle .label{font-size:14px;color:var(--muted)}
+    .theme-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+    html[data-theme="light"]{--bg:#ffffff;--panel:#f8fafc;--panel2:#ffffff;--ink:#0b0c10;--muted:#64748b;--line:#e5e7eb;--brand:#0277a8;--brand2:#168a55;--accent:#b7791f}
+    html,body{transition:background-color .25s ease,color .25s ease}
+    html[data-theme="light"] .badge,html[data-theme="light"] .chip,html[data-theme="light"] .pill{background:linear-gradient(180deg,#ffffff,#f8fafc)}
+    html[data-theme="light"] .btn{background:linear-gradient(180deg,#ffffff,#f3f4f6);color:var(--ink)}
+    html[data-theme="light"] figure{background:#f1f5f9}
+    html[data-theme="light"] .callout{background:linear-gradient(180deg,#ffffff,#f6f7fb)}
+    html[data-theme="light"] .compare{background:#f1f5f9}
+    html[data-theme="light"] .compare .compare-badge{background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(245,247,252,.85));color:var(--ink)}
+    html[data-theme="light"] .mindmap{background:radial-gradient(circle at 50% 50%,rgba(245,230,168,.18),transparent 40%),linear-gradient(180deg,#ffffff,#f8fafc)}
+    html[data-theme="light"] .mind-node{background:linear-gradient(180deg,#ffffff,#f3f4f6)}
+    html[data-theme="light"] .sub-node{background:linear-gradient(180deg,#ffffff,#f6f7fb);color:var(--ink)}
+    html[data-theme="light"] .mind-detail .detail-card{background:linear-gradient(180deg,color-mix(in srgb,var(--detail-color,#8ee3ff) 18%,#ffffff),color-mix(in srgb,var(--detail-color,#8ee3ff) 6%,#f8fafc))}
+    html[data-theme="light"] .mind-detail .detail-card p{color:var(--ink)}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header class="hero">
-      <span class="badge">Under review • Cross-sensor Super-Resolution</span>
-      <h1>RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features</h1>
-      <div class="tag">Balancing geometric fidelity and semantic synthesis under severe OOD shift.</div>
-      <div class="authors">Forouzan Fallah · Wenwen Li · Chia-Yu Hsu · Hyunho Lee · Yezhou Yang — Arizona State University</div>
+    <header class="hero" id="top">
+      <span class="badge">Cross-sensor remote-sensing SR • Semantic-guided flow matching</span>
+      <h1>Semantic-Guided Cross-Sensor Super Resolution of Remote Sensing Images: A Gated Dual Conditioning Flow Matching Model</h1>
+      <div class="tag">RareFlow is a gated dual-conditioning flow-matching model for translating 10 m Sentinel-2 imagery into 2 m Maxar-like imagery while reducing unsupported hallucination.</div>
+      <div class="authors">Forouzan Fallah · Wenwen Li · Chia-Yu Hsu · Hyunho Lee · Anna Liljedahl · Yezhou Yang</div>
       <div class="btns">
-        <a class="btn primary" href="https://arxiv.org/abs/2510.23816" aria-label="Open Paper PDF">📄 Paper(Arxiv)</a>
-        <a class="btn" href="https://github.com/RareFlow/RareFlow" aria-label="Open Code Repository">👩‍💻 Code</a>
-        <a class="btn" href="#bibtex" aria-label="Jump to BibTeX">🔖 BibTeX</a>
+        <a class="btn primary" href="./paper.pdf" aria-label="Open paper PDF">Paper (Arxiv)</a>
+        <a class="btn" href="https://github.com/RareFlow/RareFlow" aria-label="Open code repository">Code (Coming Soon)</a>
+        <a class="btn" href="#bibtex" aria-label="Jump to BibTeX">BibTeX</a>
       </div>
     </header>
 
-   <section class="panel grid cols-2-even" id="teaser">
-  <!-- Row 1, Col 1: LR vs SR(LR) -->
-  <figure class="compare" aria-label="Low-resolution input versus super-resolved (RareFlow)">
-    <img src="assets/lr.png" alt="LR input"/>
-    <img class="after" src="assets/sr_lr.png" alt="SR (RareFlow) from LR input"/>
-    <div class="labels">
-      <span class="badge" aria-hidden="true">LR</span>
-      <span class="badge" aria-hidden="true">SR (RareFlow)</span>
-    </div>
-    <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs LR" />
-    <div class="handle" aria-hidden="true"></div>
-  </figure>
+    <section class="panel mindmap-panel" id="mindmap">
+      <div class="eyebrow">Overview</div>
+      <div class="mindmap" role="group" aria-label="Interactive RareFlow mind map">
+        <!-- Main spokes from center -->
+        <span class="spoke" style="--len:200px;--rot:-138deg;--spoke-color:#f7c8d9"></span>
+        <span class="spoke" style="--len:200px;--rot:-42deg;--spoke-color:#bdd7f2"></span>
+        <span class="spoke" style="--len:230px;--rot:25deg;--spoke-color:#c5e8c8"></span>
+        <span class="spoke" style="--len:230px;--rot:155deg;--spoke-color:#fcd9b6"></span>
+        <span class="spoke" style="--len:200px;--rot:90deg;--spoke-color:#d6c8ec"></span>
 
-  <!-- Row 1, Col 2: HR↓ vs SR(HR) -->
-  <figure class="compare" aria-label="HR downsampled to LR scale versus super-resolved (RareFlow)">
-    <img src="assets/hr_d.png" alt="HR downsampled to LR scale (HR↓ → LR)"/>
-    <img class="after" src="assets/sr_hr.png" alt="SR (RareFlow) from HR↓ reference"/>
-    <div class="labels">
-      <span class="badge" aria-hidden="true">HR ↓ (to LR)</span>
-      <span class="badge" aria-hidden="true">SR (RareFlow)</span>
-    </div>
-    <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs HR↓" />
-    <div class="handle" aria-hidden="true"></div>
-  </figure>
+        <!-- SVG layer for subnode connectors -->
+        <svg class="sub-spokes" id="subSpokes" preserveAspectRatio="none" aria-hidden="true"></svg>
 
-<div id="abstract" class="abstract-narrow">
-  <h2>Abstract</h2>
-  <p>Super-resolution (SR) in remote sensing can look plausible yet be physically inaccurate, especially for rare geomorphic features and across sensors. <strong>RareFlow</strong> introduces a <em>dual-conditioning</em> architecture—a gated ControlNet to preserve fine-grained geometry from the LR input, plus <em>textual prompts</em> for semantic guidance—trained with a <em>physics-aware loss</em> that enforces spectral &amp; radiometric consistency. The framework also estimates uncertainty via <em>MC-dropout</em>, exposing unfamiliar inputs and mitigating hallucination. On a curated multi-sensor benchmark highlighting retrogressive thaw slumps (RTS), RareFlow attains strong perceptual gains (e.g., a ~38% lower FID than the next best) while maintaining fidelity, and experts often judged outputs on par with HR ground truth.</p>
-  <div class="pill">Sentinel-2 → Maxar (10 m → 2 m)</div>
-  <div class="pill">Physics-aware loss</div>
-  <div class="pill">Uncertainty-gated ControlNet</div>
-</div>
+        <!-- Center -->
+        <button class="mind-node center is-active" type="button" data-key="rareflow" data-target="abstract" aria-expanded="true">
+          <span class="node-title">RareFlow</span>
+          <span class="node-sub">semantic + LR control</span>
+        </button>
 
-<!-- Row 2, Col 2: Photo + caption -->
-<figure>
-  <!-- swap the src below to your image, e.g. assets/abstract_side.png -->
-  <img src="assets/intro.png"
-       alt="Guidance ablation: spatial-only vs semantic-only vs RareFlow" />
-  <figcaption>
-    When the LR input is blurry or semantically OOD, spatial-only guidance preserves
-    coarse morphology yet remains soft, while semantic-only guidance hallucinates
-    plausible—but incorrect—textures. <em>RareFlow</em> balances structural evidence
-    from the LR image with textual semantics, suppressing hallucinations and preserving
-    physically consistent geometry and spectra.
-  </figcaption>
-</figure>
-</section>
+        <!-- Main branches -->
+        <button class="mind-node branch" type="button" style="--x:-150px;--y:-135px;--node-color:var(--pastel-pink)" data-key="problem" data-target="problem" aria-expanded="false">
+          <span class="node-title">Problem</span>
+          <span class="node-sub">sharp is not enough</span>
+        </button>
+        <button class="mind-node branch" type="button" style="--x:150px;--y:-135px;--node-color:var(--pastel-blue)" data-key="method" data-target="method" aria-expanded="false">
+          <span class="node-title">Method</span>
+          <span class="node-sub">gated dual guidance</span>
+        </button>
+        <button class="mind-node branch" type="button" style="--x:210px;--y:60px;--node-color:var(--pastel-green)" data-key="results" data-target="results" aria-expanded="false">
+          <span class="node-title">Results</span>
+          <span class="node-sub">best on 6/8 metrics</span>
+        </button>
+        <button class="mind-node branch" type="button" style="--x:-210px;--y:60px;--node-color:var(--pastel-peach)" data-key="data" data-target="dataset" aria-expanded="false">
+          <span class="node-title">Data</span>
+          <span class="node-sub">RTS benchmark</span>
+        </button>
+        <button class="mind-node branch" type="button" style="--x:0px;--y:215px;--node-color:var(--pastel-purple)" data-key="generalization" data-target="generalization" aria-expanded="false">
+          <span class="node-title">Generalization</span>
+          <span class="node-sub">BreizhSR + SEN2NAIP</span>
+        </button>
 
+        <!-- Subnodes: PROBLEM (top-left, pink) -->
+        <button class="sub-node" type="button" style="--x:-310px;--y:-225px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="problem">Cross-sensor SR</button>
+        <button class="sub-node" type="button" style="--x:-360px;--y:-150px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="problem">Rare features (RTS)</button>
+        <button class="sub-node" type="button" style="--x:-365px;--y:-80px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Scarce data</button>
+        <button class="sub-node" type="button" style="--x:-310px;--y:-15px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Temporal mismatch</button>
+        <button class="sub-node" type="button" style="--x:-220px;--y:-235px;--sub-color:var(--pastel-pink)" data-parent="problem" data-target="dataset">Spatial mismatch</button>
 
-    <section class="panel" id="contribs">
-      <h2>Key Contributions</h2>
-      <ul>
-        <li><strong>Dynamic control of priors:</strong> Gated ControlNet + text prompts, balancing geometry vs. semantics to reduce hallucinations under OOD shift.</li>
-        <li><strong>Physics-aware objective:</strong> spectral magnitude alignment + blurred-CIELAB color consistency + LPIPS to preserve radiometry and discourage spurious detail.</li>
-        <li><strong>Unified SR + harmonization:</strong> performs super-resolution and cross-sensor radiometric style transfer jointly.</li>
-        <li><strong>SOTA under low data:</strong> ~800 labeled RTS images; improved perceptual metrics and expert validation.</li>
-      </ul>
+        <!-- Subnodes: METHOD (top-right, blue) -->
+        <button class="sub-node" type="button" style="--x:220px;--y:-235px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Semantic guidance</button>
+        <button class="sub-node" type="button" style="--x:310px;--y:-225px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">LR ControlNet</button>
+        <button class="sub-node" type="button" style="--x:360px;--y:-150px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Alpha gate</button>
+        <button class="sub-node" type="button" style="--x:355px;--y:-70px;--sub-color:var(--pastel-blue)" data-parent="method" data-target="method">Consistency loss</button>
+
+        <!-- Subnodes: RESULTS (right, green) -->
+        <button class="sub-node" type="button" style="--x:360px;--y:30px;--sub-color:var(--pastel-green)" data-parent="results" data-target="results">Main results</button>
+        <button class="sub-node" type="button" style="--x:355px;--y:110px;--sub-color:var(--pastel-green)" data-parent="results" data-target="ablation">Ablation</button>
+        <button class="sub-node" type="button" style="--x:300px;--y:175px;--sub-color:var(--pastel-green)" data-parent="results" data-target="experts">Human evaluation</button>
+
+        <!-- Subnodes: DATA (left, peach) -->
+        <button class="sub-node" type="button" style="--x:-360px;--y:30px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">Sentinel-2 ↔ Maxar</button>
+        <button class="sub-node" type="button" style="--x:-355px;--y:110px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">Arctic regions</button>
+        <button class="sub-node" type="button" style="--x:-300px;--y:175px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="dataset">~800 RTS pairs</button>
+        <button class="sub-node" type="button" style="--x:-210px;--y:215px;--sub-color:var(--pastel-peach)" data-parent="data" data-target="method">VLM captions</button>
+
+        <!-- Subnodes: GENERALIZATION (bottom, purple) -->
+        <button class="sub-node" type="button" style="--x:-110px;--y:280px;--sub-color:var(--pastel-purple)" data-parent="generalization" data-target="generalization">BreizhSR</button>
+        <button class="sub-node" type="button" style="--x:110px;--y:280px;--sub-color:var(--pastel-purple)" data-parent="generalization" data-target="generalization">SEN2NAIP</button>
+      </div>
+      <div class="mind-detail" id="mindDetail" aria-live="polite"></div>
     </section>
 
-    <!-- METHOD: split text and diagram so the (rectangular) image gets full width -->
-    <section class="panel" id="method">
-      <h2>Method Overview</h2>
-      <p><strong>Dual-Conditioned Flow-Matching in Latent Space.</strong> A frozen VAE + diffusion transformer (SD3 MM-DiT) is steered by a trainable ControlNet that consumes LR latents and emits residual hints per block. Per-block scalar gates α<sub>l</sub>(t, u) depend on diffusion time and <em>uncertainty</em> u (from MC-dropout), scaling control strength during sampling.</p>
-      <p><strong>Physics-Aware Loss.</strong> Base flow-matching loss + (i) <em>FFT magnitude</em> alignment (mid/high frequencies), (ii) <em>blurred-CIELAB</em> mean/std alignment for radiometry, and (iii) <em>LPIPS</em> for perceptual agreement.</p>
-    </section>
-
-    <section class="panel" id="method-figure">
-      <figure class="method-figure">
-        <img src="assets/method.png" alt="Control path produces residual hints and per-block gates injected into a frozen backbone."/>
-        <figcaption>Figure 2 (p.4): Control path produces residual hints and per-block gates injected into a frozen backbone.</figcaption>
+    <section class="panel grid cols-2" id="problem">
+      <div>
+        <div class="eyebrow">Problem</div>
+        <h2>Cross-sensor SR must be useful, not just sharp</h2>
+        <p>Remote-sensing SR can create images that look realistic but do not match the true landscape. This is risky for rare geomorphic features such as retrogressive thaw slumps, where a plausible texture can still be scientifically wrong.</p>
+        <p>RareFlow treats the task as target-domain reconstruction: the output should preserve the LR scene layout, add plausible fine detail, and match the target sensor style.</p>
+        <div class="pill">10 m Sentinel-2 input</div>
+        <div class="pill">2 m Maxar-like output</div>
+        <div class="pill">Rare RTS features</div>
+      </div>
+      <figure>
+        <img src="assets/failure_case.png" alt="Low-resolution input, high-resolution ground truth, and a sharp but wrong super-resolved output." />
+        <figcaption>Motivation: a state-of-the-art SR result can look sharper than the LR input while missing the true morphology visible in the HR reference. An example of a failure case for the state-of-the-art model's super-resolved image is shown in (c). While it appears sharper and more plausible than the low-resolution image in (a), it fails to capture the true morphology of landscape features as shown in the high-resolution image (b).</figcaption>
       </figure>
     </section>
 
+    <section class="panel" id="abstract">
+      <div class="eyebrow">Abstract</div>
+      <h2>What RareFlow does</h2>
+      <p>High spatial resolution satellite imagery is critical for monitoring fine-scale Earth surface processes, but is often limited by cost and revisit time. This work studies cross-sensor super-resolution (SR) to reduce this gap by translating 10 m Sentinel-2 imagery into 2 m Maxar-like imagery in a data-scarce, domain-shifted setting, with a focus on rare geomorphic features such as retrogressive thaw slumps (RTS). We propose RareFlow, a semantic-guided generative AI framework for cross-sensor super-resolution based on a flow-matching formulation, designed to produce visually plausible and physically reliable high-resolution images. </p>
+      <p>RareFlow uses dual conditioning to guide the generation process: (1) a gated ControlNet that preserves scene geometry from low-resolution (LR) input, and (2) text-based semantic guidance that injects contextual information when the target phenomenon is rare. To ensure high-fidelity outputs, we introduce a multifaceted loss function that anchors the output to the high-resolution (HR) ground truth by jointly enforcing frequency alignment, perceptual similarity, and color consistency. RareFlow's performance is systematically evaluated on a newly curated benchmark of multi-sensor satellite imagery for rare Earth feature detection, and its generalizability is demonstrated on two public remote sensing benchmarks, SEN2NAIP and BreizhSR. Human evaluation with domain experts is also conducted to further verify RareFlow's effectiveness in generating high-fidelity super-resolved images for scientific analysis.</p>
+
+      <!-- Before/After comparison sliders -->
+      <div class="compare-grid two" aria-label="Interactive super-resolution comparisons">
+        <div>
+          <figure class="compare" aria-label="Low-resolution input versus super-resolved (RareFlow)">
+            <img src="assets/lr.png" alt="LR input"/>
+            <img class="after" src="assets/sr_lr.png" alt="SR (RareFlow) from LR input"/>
+            <div class="labels">
+              <span class="compare-badge" aria-hidden="true">LR</span>
+              <span class="compare-badge" aria-hidden="true">SR (RareFlow)</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs LR" />
+            <div class="handle" aria-hidden="true"></div>
+          </figure>
+          <div class="compare-caption">Drag to compare: Sentinel-2 LR input → RareFlow super-resolved output.</div>
+        </div>
+
+        <div>
+          <figure class="compare" aria-label="HR downsampled to LR scale versus super-resolved (RareFlow)">
+            <img src="assets/hr_d.png" alt="HR downsampled to LR scale"/>
+            <img class="after" src="assets/sr_hr.png" alt="SR (RareFlow) from HR↓ reference"/>
+            <div class="labels">
+              <span class="compare-badge" aria-hidden="true">HR ↓ (to LR)</span>
+              <span class="compare-badge" aria-hidden="true">SR (RareFlow)</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" aria-label="Reveal SR vs HR downsampled" />
+            <div class="handle" aria-hidden="true"></div>
+          </figure>
+          <div class="compare-caption">Drag to compare: HR downsampled to LR scale → RareFlow super-resolved output.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="contribs">
+      <div class="eyebrow">Contributions</div>
+      <h2>Key contributions</h2>
+      <div class="cards">
+        <div class="card"><h3>Gated dual conditioning</h3><p>RareFlow balances semantic guidance from text with observation guidance from the LR image through learned alpha gates.</p></div>
+        <div class="card"><h3>Consistency-guided objective</h3><p>The loss combines flow-matching regression with FFT frequency alignment, CIELAB color consistency, and LPIPS perceptual similarity.</p></div>
+        <div class="card"><h3>Rare-feature benchmark</h3><p>The paper builds a multi-sensor RTS benchmark using Sentinel-2 LR inputs and Maxar HR targets under real sensor and time mismatch.</p></div>
+        <div class="card"><h3>Generalization tests</h3><p>RareFlow is also evaluated on BreizhSR and SEN2NAIP to test transfer beyond the Arctic RTS setting.</p></div>
+      </div>
+    </section>
+
+    <section class="panel" id="method">
+      <div class="eyebrow">Method</div>
+      <h2>Gated dual-conditioning flow matching</h2>
+      <p>RareFlow keeps the VAE and SD3 MM-DiT backbone frozen. A trainable ControlNet consumes the aligned LR latent and emits residual features for selected backbone blocks. Learned alpha gates scale these residuals before injection, so the model can decide how strongly to trust LR structure at each block.</p>
+      <p>During training, the HR target is used to create the clean latent and compute consistency losses. During inference, the HR branch is removed; RareFlow only uses the LR image and a text prompt to sample the SR output.</p>
+      <div class="figure-grid three">
+        <figure class="wide">
+          <img src="assets/framework.png" alt="Overview of the RareFlow framework with input data, gated ControlNet, frozen SD3 backbone, and consistency-guided objective." />
+          <figcaption>Framework overview: LR latents and semantic guidance steer a frozen SD3 backbone through a trainable ControlNet and alpha-gate mechanism.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/architecture.png" alt="Technical architecture of RareFlow showing dual conditioning, SD3 MM-DiT blocks, and ControlNet MM-DiT blocks." />
+          <figcaption>Technical architecture: learned gates scale ControlNet residuals before they are added to frozen backbone features.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/frequency_content.png" alt="Comparison of LR and HR images and their FFT spectra." />
+          <figcaption>Frequency motivation: HR targets contain stronger mid- and high-frequency content, motivating the FFT alignment loss.</figcaption>
+        </figure>
+      </div>
+    </section>
+
     <section class="panel" id="results">
-      <h2>Results Highlights</h2>
+      <div class="eyebrow">Main results</div>
+      <h2>RareFlow improves realism while keeping structure</h2>
       <div class="kpis">
-        <div class="kpi"><div class="val">116.16</div><div class="muted">FID (↓) — best; 38% lower vs AdcSR 187.18 (Table 1, p.7).</div></div>
-        <div class="kpi"><div class="val">0.59</div><div class="muted">SSIM (↑) — best on paired LR–HR (Table 1, p.7).</div></div>
-        <div class="kpi"><div class="val">0.83</div><div class="muted">FSIM (↑) — best (Table 1, p.7).</div></div>
-        <div class="kpi"><div class="val">↓ LPIPS/DISTS</div><div class="muted">Both lowest on paired setting (Table 1, p.7).</div></div>
+        <div class="kpi"><div class="val">116.16</div><div class="label">FID, best; 37.94% lower than the best baseline.</div></div>
+        <div class="kpi"><div class="val">3.86</div><div class="label">SAM, best; stronger spectral consistency.</div></div>
+        <div class="kpi"><div class="val">0.59</div><div class="label">SSIM, best on paired LR-HR data.</div></div>
+        <div class="kpi"><div class="val">0.36 / 0.30</div><div class="label">LPIPS / DISTS, best perceptual similarity.</div></div>
+      </div>
+      <div class="table-scroll" aria-label="Main quantitative results table">
+        <table>
+          <thead><tr><th>Model</th><th>PSNR ↑</th><th>SSIM ↑</th><th>SAM ↓</th><th>LPIPS ↓</th><th>DISTS ↓</th><th>FID ↓</th><th>NIQE ↓</th><th>MANIQA ↑</th></tr></thead>
+          <tbody>
+            <tr><td>ZoomLDM</td><td>17.23</td><td>0.26</td><td>12.96</td><td>0.60</td><td>0.59</td><td>352.11</td><td>18.10</td><td>0.19</td></tr>
+            <tr><td>SeeSR</td><td class="best">18.78</td><td>0.50</td><td>12.26</td><td>0.46</td><td>0.38</td><td>302.36</td><td>10.78</td><td class="best">0.36</td></tr>
+            <tr><td>AdcSR</td><td>18.59</td><td>0.58</td><td>12.31</td><td>0.40</td><td>0.37</td><td>187.18</td><td>8.38</td><td>0.28</td></tr>
+            <tr><td>MISR-S2</td><td>18.39</td><td>0.50</td><td>12.72</td><td>0.54</td><td>0.43</td><td>254.70</td><td>13.55</td><td>0.33</td></tr>
+            <tr><td>SAMSR</td><td>18.36</td><td>0.54</td><td>12.80</td><td>0.48</td><td>0.39</td><td>189.01</td><td>11.84</td><td>0.32</td></tr>
+            <tr><td>OpenSR</td><td>17.29</td><td>0.51</td><td>12.59</td><td>0.41</td><td>0.36</td><td>225.62</td><td>9.80</td><td>0.25</td></tr>
+            <tr><td><strong>RareFlow</strong></td><td class="second">18.76</td><td class="best">0.59</td><td class="best">3.86</td><td class="best">0.36</td><td class="best">0.30</td><td class="best">116.16</td><td class="best">5.36</td><td>0.31</td></tr>
+          </tbody>
+        </table>
       </div>
       <figure style="margin-top:14px">
-        <img src="assets/main_results.png" alt="Qualitative comparison strip across methods"/>
-        <figcaption>Figure 4 (p.7): Cross-sensor SR + style transfer—RareFlow reconstructs geological detail and matches Maxar style; baselines retain Sentinel-2 style.</figcaption>
+        <img src="assets/qualitative_results.png" alt="Qualitative comparison across LR, HR, baselines, and RareFlow." />
+        <figcaption>Qualitative comparison: RareFlow better matches Maxar-like detail and style than the listed baselines.</figcaption>
+      </figure>
+    </section>
+
+    <section class="panel" id="ablation">
+      <div class="eyebrow">Ablation</div>
+      <p>The full model combines semantic guidance, consistency-guided training, and alpha-gated structural conditioning. 
+This combination gives the strongest overall result: the model achieves the best SSIM, FID, and NIQE, and remains second-best or tied second-best on SAM, LPIPS, DISTS, and MANIQA. 
+These results suggest that the components are complementary. Pre-trained ControlNet supports structural consistency, captions improve target-domain realism, the consistency-guided objective stabilizes caption-guided generation, and the alpha-gate helps balance conditioning strength.</p>
+      <figure>
+        <img src="assets/ablation_variants.png" alt="Visual comparison of RareFlow ablation variants." />
+        <figcaption>Visual comparison of RareFlow ablation variants.</figcaption>
       </figure>
     </section>
 
     <section class="panel grid cols-2" id="dataset">
       <div>
-        <h2>Dataset & Challenges</h2>
-        <ul>
-<p>
-  These challenges include: 
-  <strong>(1) Spatiotemporal misalignment</strong> between LR and HR images, acquired at different times, causes sub-pixel shifts, dramatic variations in illumination, and stark land cover changes. Furthermore, the dataset is characterized by <strong>(2) Small image dimensions</strong>, with inputs as small as 30×40 pixels, which prevent direct comparison to models evaluated on larger benchmark images. <strong>(3) A non-standard 12-bit data range</strong> that departs from the typical 8-bit format and makes model performance highly sensitive to the chosen normalization method as it materially alters input data distribution. <strong>(4) A limited training corpus of ≈ 800 images</strong>, which necessitates a data-efficient approach unsuitable for training large models from scratch.
-</p>
-        </ul>
+        <div class="eyebrow">Data</div>
+        <h2>RTS benchmark and data challenges</h2>
+        <p>The benchmark pairs Sentinel-2 Level-1C imagery with Maxar imagery to learn a 10 m to 2 m cross-sensor mapping for retrogressive thaw slump regions across Arctic sites.</p>
+        <p>The setting is hard because LR-HR pairs can be spatially shifted, temporally mismatched, cloud affected, very small, and limited in number. The paper reports roughly 800 training images.</p>
+        <div class="pill">Spatial mismatch</div>
+        <div class="pill">Temporal mismatch</div>
+        <div class="pill">Cloud occlusion</div>
+        <div class="pill">Limited data</div>
       </div>
       <figure>
-        <img src="assets/data_sample.png" alt="Data challenges: color normalization, spatial and temporal misalignment"/>
-        <figcaption>Figure 3 (p.6): Radiometric shifts, spatial offsets, and snow cover differences between acquisitions.</figcaption>
+        <img src="assets/data_challenges.png" alt="Examples of spatial detail mismatch, temporal misalignment, and cloud occlusion." />
+        <figcaption>Examples of data challenges. From left to right, the columns illustrate: 1) spatial detail misalignment; 2) temporal misalignment (snow is present in HR but not LR); and 3) cloud occlusion in the HR image.</figcaption>
       </figure>
     </section>
 
     <section class="panel" id="experts">
-      <h2>Expert Evaluation</h2>
-      <p>Geomorphology experts confirmed clear improvements over LR inputs; in many cases, super-resolved outputs were judged <em>perceptually on par</em> with 2 m Maxar ground truth for RTS features.</p>
+      <div class="eyebrow">Human evaluation</div>
+      <h2>Domain experts preferred RareFlow over baselines</h2>
+      <div class="grid cols-2">
+        <div>
+          <a href="https://huggingface.co/spaces/forouzanfallah/Super_Resolution_Evaluation">Human Evaluation Spaces</a>
+          <p>Experts scored outputs from 1 to 10 with attention to RTS boundaries. RareFlow reached a mean score of 4.6, above AdcSR at 3.2, SeeSR at 2.5, and the LR input at 2.3. HR reference remained the upper bound at 6.3.</p>
+          <p>Reported agreement was substantial: Krippendorff's alpha = 0.736, Kendall's W = 0.841, and Spearman's rho = 0.673.</p>
+        </div>
+        <figure>
+          <img src="assets/expert_scores.png" alt="Expert evaluation bar chart showing scores for SeeSR, LR, AdcSR, RareFlow, and HR." />
+          <figcaption>Expert scores show RareFlow narrowing the gap between LR input and HR reference.</figcaption>
+        </figure>
+      </div>
     </section>
 
-    <section class="panel" id="faq">
-      <h2>FAQ</h2>
-      <details>
-        <summary>What keeps RareFlow from hallucinating?</summary>
-        <div class="small">Uncertainty-gated control reduces prior “creativity” when evidence is weak; physics-aware losses constrain spectra & color.</div>
-      </details>
-      <details>
-        <summary>Does it handle style differences between sensors?</summary>
-        <div class="small">Yes—SR is coupled with explicit cross-sensor style transfer toward the target instrument’s radiometry and textures.</div>
-      </details>
-      <details>
-        <summary>How should I write text prompts?</summary>
-        <div class="small">
-          Keep prompts <em>descriptive, not prescriptive</em>. Mention scene type, materials, and season (e.g., “periglacial terrain, exposed soil, early summer, minimal snow”). Avoid forcing tiny features (“sharp cracks everywhere”) which can induce artifacts. If the model seems too “creative”, shorten the prompt or lower guidance strength.
-        </div>
-      </details>
-      <details>
-        <summary>What controls the balance between geometry and synthesis?</summary>
-        <div class="small">
-          Two knobs: (1) <em>control strength / gating schedule</em>—higher gates anchor structure to the LR evidence; (2) <em>text guidance scale</em>—higher guidance adds semantics and style. For safety-first reconstructions, increase gates and reduce guidance.
-        </div>
-      </details>
-      <details>
-        <summary>What are the common failure modes?</summary>
-        <div class="small">
-          OOD textures (e.g., heavy snow, cloud, unusual materials), large temporal changes, and overly prescriptive prompts can cause oversharpening or incorrect semantics. Inspect uncertainty maps; if they spike, fall back to stronger control and lighter guidance.
-        </div>
-      </details>
-      <details>
-        <summary>Can I adapt this beyond satellite imagery?</summary>
-        <div class="small">
-          Yes—in principle to other cross-sensor SR tasks. For regulated domains (medical, surveillance), ensure domain approval, anonymization, and strict validation before deployment.
-        </div>
-      </details>
-      <details>
-        <summary>Any ethical or licensing considerations?</summary>
-        <div class="small">
-          Respect the licensing of commercial HR imagery and avoid using SR outputs to make unverifiable claims about fine-scale features. Clearly label synthesized content and provide LR inputs alongside results for context.
-        </div>
-      </details>
+    <section class="panel" id="generalization">
+      <div class="eyebrow">Generalization</div>
+      <h2>Tests beyond the RTS benchmark</h2>
+      <p>RareFlow was trained and tested on two public cross-sensor SR benchmarks to evaluate transfer beyond Arctic thaw slump imagery.</p>
+      <div class="table-scroll" aria-label="Generalization results table">
+        <table>
+          <thead><tr><th>Dataset</th><th>Method</th><th>PSNR ↑</th><th>SSIM ↑</th><th>FSIM ↑</th><th>LPIPS ↓</th><th>DISTS ↓</th><th>FID ↓</th><th>NIQE ↓</th><th>MANIQA ↑</th></tr></thead>
+          <tbody>
+            <tr><td>BreizhSR</td><td><strong>RareFlow</strong></td><td class="best">11.30</td><td>0.18</td><td>0.53</td><td class="best">0.52</td><td class="best">0.31</td><td class="best">245.30</td><td class="best">7.95</td><td class="best">0.32</td></tr>
+            <tr><td>BreizhSR</td><td>MISR-S2</td><td>11.28</td><td class="best">0.23</td><td class="best">0.54</td><td>0.63</td><td>0.36</td><td>254.10</td><td>9.36</td><td>0.22</td></tr>
+            <tr><td>SEN2NAIP</td><td><strong>RareFlow</strong></td><td class="best">14.44</td><td class="best">0.29</td><td>0.57</td><td class="best">0.59</td><td class="best">0.32</td><td class="best">214.50</td><td class="best">6.23</td><td>0.19</td></tr>
+            <tr><td>SEN2NAIP</td><td>OpenSR</td><td>12.50</td><td>0.24</td><td class="best">0.61</td><td>0.61</td><td>0.36</td><td>230.95</td><td>6.76</td><td class="best">0.20</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel" id="bibtex">
+      <div class="eyebrow">Citation</div>
       <h2>Cite</h2>
-      <div class="bib">@inproceedings{RareFlow2025,
-  title     = {RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features},
-  author    = {Fallah, Forouzan and Li, Wenwen and Hsu, Chia-Yu and Lee, Hyunho and Yang, Yezhou},
-  journal   = {arXiv preprint arXiv:2510.23816},
-  year      = {2025},
-  note      = {Project page: rareflow.github.io}
+      <div class="bib">@article{fallah2025rareflow,
+  title={RareFlow: Physics-Aware Flow-Matching for Cross-Sensor Super-Resolution of Rare-Earth Features},
+  author={Fallah, Forouzan and Li, Wenwen and Hsu, Chia-Yu and Lee, Hyunho and Yang, Yezhou},
+  journal={arXiv preprint arXiv:2510.23816},
+  year={2025}
 }</div>
     </section>
 
-    <footer class="wrap">
+    <footer>
       <div class="small">© <span id="y"></span> RareFlow Authors.</div>
     </footer>
   </div>
 
   <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode">
-    <span class="icon" aria-hidden="true">🌙</span>
+    <span class="icon" aria-hidden="true">Moon</span>
     <span class="label">Dark</span>
   </button>
 
@@ -311,58 +472,180 @@
     const root = document.documentElement;
     const prefersLight = window.matchMedia('(prefers-color-scheme: light)');
 
-    function init() {
-      // Footer year
-      const yEl = document.getElementById('y');
-      if (yEl) yEl.textContent = new Date().getFullYear();
+    // Pastel palette resolved from CSS vars (kept in sync)
+    const PASTELS = {
+      rareflow:       '#f5e6a8', // yellow
+      problem:        '#f7c8d9', // pink
+      method:         '#bdd7f2', // blue
+      results:        '#c5e8c8', // green
+      data:           '#fcd9b6', // peach
+      generalization: '#d6c8ec'  // purple
+    };
 
-      const btn = document.getElementById('themeToggle');
-      if (!btn) return; // Button not present; nothing to do.
+    const mindText = {
+      rareflow: {
+        title: 'RareFlow',
+        body: 'A semantic-guided, LR-controlled flow-matching framework for cross-sensor remote-sensing SR. It translates Sentinel-2 inputs into Maxar-like outputs while staying grounded in the observed scene.',
+        pills: ['frozen SD3', 'gated ControlNet', 'consistency loss']
+      },
+      problem: {
+        title: 'Problem',
+        body: 'Cross-sensor SR is not just sharpening. The output must preserve measured scene layout, recover plausible rare-feature detail, and match the target sensor domain without inventing unsupported structures.',
+        pills: ['Cross-sensor SR', 'Rare features (RTS)', 'Scarce data', 'Temporal mismatch', 'Spatial mismatch']
+      },
+      method: {
+        title: 'Method',
+        body: 'RareFlow uses a frozen SD3 backbone, trainable LR-conditioned ControlNet residuals, learned alpha gates, semantic guidance from text, and a consistency-guided objective with frequency, color, and perceptual terms.',
+        pills: ['Semantic guidance', 'LR ControlNet', 'Alpha gate', 'Consistency loss']
+      },
+      results: {
+        title: 'Results',
+        body: 'On paired RTS data, RareFlow leads six of eight reported metrics — FID 116.16, SAM 3.86, SSIM 0.59, LPIPS 0.36, DISTS 0.30, NIQE 5.36 — and is preferred by domain experts.',
+        pills: ['Main results', 'Ablation', 'Human evaluation']
+      },
+      data: {
+        title: 'Data',
+        body: 'The RTS benchmark pairs 10 m Sentinel-2 imagery with 2 m Maxar targets across Arctic regions. About 800 image pairs come with VLM-generated captions for semantic guidance.',
+        pills: ['Sentinel-2 ↔ Maxar', 'Arctic regions', '~800 RTS pairs', 'VLM captions']
+      },
+      generalization: {
+        title: 'Generalization',
+        body: 'Beyond Arctic thaw slumps, RareFlow transfers to BreizhSR and SEN2NAIP, improving FID and several fidelity / perceptual metrics on both public cross-sensor SR benchmarks.',
+        pills: ['BreizhSR', 'SEN2NAIP']
+      }
+    };
 
-      const icon = btn.querySelector('.icon');
-      const label = btn.querySelector('.label');
+    function renderMindDetail(key) {
+      const detail = document.getElementById('mindDetail');
+      if (!detail || !mindText[key]) return;
+      const color = PASTELS[key] || '#8ee3ff';
+      const pillsHTML = (mindText[key].pills || [])
+        .map(p => '<span>' + p + '</span>')
+        .join('');
+      detail.innerHTML =
+        '<div class="detail-card" style="--detail-color:' + color + '">' +
+          '<h3>' + mindText[key].title + '</h3>' +
+          '<p>' + mindText[key].body + '</p>' +
+          (pillsHTML ? '<div class="detail-pills">' + pillsHTML + '</div>' : '') +
+        '</div>';
+    }
 
-      const stored = localStorage.getItem(THEME_KEY);
-      let theme = stored || (prefersLight.matches ? 'light' : 'dark');
+    function showSubnodes(parentKey) {
+      const subnodes = document.querySelectorAll('.sub-node');
+      subnodes.forEach(s => {
+        const isMatch = s.getAttribute('data-parent') === parentKey;
+        s.classList.toggle('is-visible', isMatch);
+      });
+      drawSubSpokes(parentKey);
+    }
 
-      function apply() {
-        if (theme === 'light') {
-          root.setAttribute('data-theme', 'light');
-          if (icon) icon.textContent = '☀️';
-          if (label) label.textContent = 'Light';
-          btn.setAttribute('aria-label', 'Switch to dark mode');
-          btn.setAttribute('aria-pressed', 'false');
-        } else {
-          root.removeAttribute('data-theme'); // default = dark
-          if (icon) icon.textContent = '🌙';
-          if (label) label.textContent = 'Dark';
-          btn.setAttribute('aria-label', 'Switch to light mode');
-          btn.setAttribute('aria-pressed', 'true');
-        }
+    function hideAllSubnodes() {
+      document.querySelectorAll('.sub-node').forEach(s => s.classList.remove('is-visible'));
+      drawSubSpokes(null);
+    }
+
+    // Draw lines from each main branch node to its visible subnodes
+    function drawSubSpokes(activeKey) {
+      const svg = document.getElementById('subSpokes');
+      const mindmap = document.querySelector('.mindmap');
+      if (!svg || !mindmap) return;
+
+      // Skip on small layouts
+      if (window.innerWidth <= 760) {
+        svg.innerHTML = '';
+        return;
       }
 
-      apply();
+      const rect = mindmap.getBoundingClientRect();
+      svg.setAttribute('viewBox', '0 0 ' + rect.width + ' ' + rect.height);
+      svg.innerHTML = '';
 
-      // Persist ONLY after the user explicitly toggles.
-      btn.addEventListener('click', function () {
-        theme = (theme === 'light') ? 'dark' : 'light';
-        localStorage.setItem(THEME_KEY, theme);
-        apply();
+      if (!activeKey) return;
+
+      const parentNode = document.querySelector('.mind-node.branch[data-key="' + activeKey + '"]');
+      if (!parentNode) return;
+
+      const parentRect = parentNode.getBoundingClientRect();
+      const px = parentRect.left - rect.left + parentRect.width / 2;
+      const py = parentRect.top - rect.top + parentRect.height / 2;
+
+      const subs = document.querySelectorAll('.sub-node[data-parent="' + activeKey + '"]');
+      const color = PASTELS[activeKey] || '#8ee3ff';
+
+      subs.forEach(s => {
+        const sr = s.getBoundingClientRect();
+        const sx = sr.left - rect.left + sr.width / 2;
+        const sy = sr.top - rect.top + sr.height / 2;
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', px);
+        line.setAttribute('y1', py);
+        line.setAttribute('x2', sx);
+        line.setAttribute('y2', sy);
+        line.setAttribute('stroke', color);
+        line.setAttribute('class', 'is-visible');
+        line.setAttribute('stroke-dasharray', '4 4');
+        svg.appendChild(line);
+      });
+    }
+
+    function initMindMap() {
+      const mainNodes = document.querySelectorAll('.mind-node');
+      const subNodes = document.querySelectorAll('.sub-node');
+
+      // Initial render: center node selected
+      renderMindDetail('rareflow');
+
+      mainNodes.forEach((node) => {
+        node.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const key = node.getAttribute('data-key');
+
+          // Update active state
+          mainNodes.forEach((n) => {
+            n.classList.remove('is-active');
+            n.setAttribute('aria-expanded', 'false');
+          });
+          node.classList.add('is-active');
+          node.setAttribute('aria-expanded', 'true');
+
+          // Render colored detail card
+          renderMindDetail(key);
+
+          // Show subnodes for this branch (or hide all if center)
+          if (key === 'rareflow') {
+            hideAllSubnodes();
+          } else {
+            showSubnodes(key);
+          }
+        });
       });
 
-      // Follow system changes only if user hasn't chosen a theme yet.
-      if (!stored) {
-        const mqHandler = (e) => { theme = e.matches ? 'light' : 'dark'; apply(); };
-        if (prefersLight.addEventListener) {
-          prefersLight.addEventListener('change', mqHandler);
-        } else if (prefersLight.addListener) { // legacy Safari
-          prefersLight.addListener(mqHandler);
-        }
-      }
+      subNodes.forEach((sub) => {
+        sub.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const targetId = sub.getAttribute('data-target');
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + targetId);
+          }
+        });
+      });
 
-      // ── Initialize teaser compare sliders (supports multiple) ─────────────
+      // Redraw spokes on resize
+      window.addEventListener('resize', () => {
+        const active = document.querySelector('.mind-node.branch.is-active');
+        if (active) {
+          drawSubSpokes(active.getAttribute('data-key'));
+        }
+      });
+    }
+
+    // Initialize before/after compare sliders
+    function initCompareSliders() {
       document.querySelectorAll('.compare').forEach((compare) => {
         const range = compare.querySelector('input[type="range"]');
+        if (!range) return;
         const setPos = (p) => {
           const pct = Math.min(100, Math.max(0, +p));
           compare.style.setProperty('--pos', pct + '%');
@@ -370,14 +653,62 @@
         };
         range.addEventListener('input', (e) => setPos(e.target.value));
         range.addEventListener('keydown', (e) => {
-          if (e.key === 'Home') { setPos(0); }
-          if (e.key === 'End')  { setPos(100); }
+          if (e.key === 'Home') { setPos(0); range.value = 0; }
+          if (e.key === 'End')  { setPos(100); range.value = 100; }
         });
         setPos(range.value || 50);
       });
     }
 
-    // Ensure the DOM (including the button) exists first.
+    function init() {
+      const yEl = document.getElementById('y');
+      if (yEl) yEl.textContent = new Date().getFullYear();
+      initMindMap();
+      initCompareSliders();
+
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      const icon = btn.querySelector('.icon');
+      const label = btn.querySelector('.label');
+      const stored = localStorage.getItem(THEME_KEY);
+      let theme = stored || (prefersLight.matches ? 'light' : 'dark');
+
+      function apply() {
+        if (theme === 'light') {
+          root.setAttribute('data-theme', 'light');
+          if (icon) icon.textContent = 'Sun';
+          if (label) label.textContent = 'Light';
+          btn.setAttribute('aria-label', 'Switch to dark mode');
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          root.removeAttribute('data-theme');
+          if (icon) icon.textContent = 'Moon';
+          if (label) label.textContent = 'Dark';
+          btn.setAttribute('aria-label', 'Switch to light mode');
+          btn.setAttribute('aria-pressed', 'true');
+        }
+        // Redraw spokes after theme change in case layout shifted
+        const active = document.querySelector('.mind-node.branch.is-active');
+        if (active) drawSubSpokes(active.getAttribute('data-key'));
+      }
+
+      apply();
+      btn.addEventListener('click', function () {
+        theme = (theme === 'light') ? 'dark' : 'light';
+        localStorage.setItem(THEME_KEY, theme);
+        apply();
+      });
+
+      if (!stored) {
+        const mqHandler = (e) => { theme = e.matches ? 'light' : 'dark'; apply(); };
+        if (prefersLight.addEventListener) {
+          prefersLight.addEventListener('change', mqHandler);
+        } else if (prefersLight.addListener) {
+          prefersLight.addListener(mqHandler);
+        }
+      }
+    }
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init, { once: true });
     } else {
